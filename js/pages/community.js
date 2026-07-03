@@ -1,0 +1,177 @@
+import { getMembers } from "../api/membersApi.js";
+
+function escapeHtml(text = "") {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function hasValue(value) {
+  return value && String(value).trim() !== "";
+}
+
+function linkValue(primary, cloud) {
+  return hasValue(cloud)
+    ? String(cloud).trim()
+    : hasValue(primary)
+      ? String(primary).trim()
+      : "";
+}
+
+function buildLinks(member) {
+  const links = [];
+
+  const cvLink = linkValue(member.cvLink, member.cvLinkClord);
+  const mediaLink = linkValue(member.mediaLink, member.mediaLinkClord);
+
+  if (cvLink) {
+    const qs = new URLSearchParams({ cv: cvLink });
+
+    links.push(`
+      <a class="community-link-btn" href="cv-viewer.html?${qs.toString()}" target="_blank" rel="noopener">
+        CV
+      </a>
+    `);
+  }
+
+  if (mediaLink) {
+    links.push(`
+      <a class="community-link-btn" href="${escapeHtml(mediaLink)}" target="_blank" rel="noopener">
+        Media
+      </a>
+    `);
+  }
+
+  if (cvLink && mediaLink) {
+    const qs = new URLSearchParams({
+      cv: cvLink,
+      media_link: mediaLink
+    });
+
+    links.push(`
+      <a class="community-link-btn community-link-btn-featured" href="cv-viewer.html?${qs.toString()}" target="_blank" rel="noopener">
+        CV &amp; Media
+      </a>
+    `);
+  }
+
+  return links.join("");
+}
+
+function isDeceased(member) {
+  return String(member.status || "active").trim().toLowerCase() === "deceased";
+}
+
+function resolvePhotoSrc(member) {
+  return hasValue(member.photoLink)
+    ? String(member.photoLink).trim()
+    : "";
+}
+
+function displayName(member) {
+  return `${member.firstName || ""} ${member.lastName || ""}`.trim();
+}
+
+export async function render() {
+  return `
+    <div class="community-header">
+      <div class="community-eyebrow">ΑΠΟΦΟΙΤΟΙ 1976</div>
+
+      <h1>Η <em>Κοινότητά</em> μας</h1>
+
+      <p>
+        Πρόσωπα, διαδρομές και αναμνήσεις από την κοινή πορεία
+        των αποφοίτων της Σχολής Ηλεκτρολόγων Μηχανικών.
+      </p>
+    </div>
+
+    <main class="community-main">
+      <div id="communityGrid" class="community-grid">
+        <div class="community-loading">Φόρτωση μελών...</div>
+      </div>
+    </main>
+  `;
+}
+
+export async function afterRender() {
+  const grid = document.getElementById("communityGrid");
+
+  if (!grid) return;
+
+  try {
+    const members = await getMembers();
+
+    const visibleMembers = members.filter(member => {
+      const first = hasValue(member.firstName);
+      const last = hasValue(member.lastName);
+      const photo = hasValue(member.photoLink);
+
+      return photo && (first || last);
+    });
+
+    if (!visibleMembers.length) {
+      grid.innerHTML = `
+        <div class="community-empty">
+          Δεν βρέθηκαν μέλη για εμφάνιση.
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = visibleMembers.map(member => {
+      const fullName = displayName(member);
+      const photoSrc = resolvePhotoSrc(member);
+      const links = buildLinks(member);
+      const deceased = isDeceased(member);
+
+      const footerContent = deceased
+        ? `<div class="community-memorial">✝ Στη μνήμη</div>`
+        : links;
+
+      return `
+        <article class="community-card${deceased ? " community-card-deceased" : ""}">
+          <h3 class="community-name">${escapeHtml(fullName)}</h3>
+
+          <div class="community-photo-frame">
+            ${
+              photoSrc
+                ? `
+                  <img
+                    src="${escapeHtml(photoSrc)}"
+                    alt="${escapeHtml(fullName)}"
+                    loading="lazy"
+                    onerror="this.closest('.community-photo-frame').classList.add('photo-missing'); this.remove();"
+                  >
+                `
+                : `
+                  <div class="community-photo-placeholder">Χωρίς φωτογραφία</div>
+                `
+            }
+          </div>
+
+          ${
+            footerContent
+              ? `
+                <div class="community-links${deceased ? " community-links-memorial" : ""}">
+                  ${footerContent}
+                </div>
+              `
+              : ""
+          }
+        </article>
+      `;
+    }).join("");
+
+  } catch (err) {
+    console.error("Error loading community members:", err);
+
+    grid.innerHTML = `
+      <div class="community-empty">
+        Αποτυχία φόρτωσης μελών.
+      </div>
+    `;
+  }
+}

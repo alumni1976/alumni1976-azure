@@ -1,0 +1,82 @@
+﻿[
+  {
+    "id": 10,
+    "first_name": "Γεωρ.",
+    "last_name": "Βαρδουνιώτης",
+    "email": "giorvar1@gmail.com",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305737/vardouniotis_s9oh1p.webm",
+    "photo_link_cloud": ""
+  },
+  {
+    "id": 16,
+    "first_name": "Νίκος",
+    "last_name": "Δαβίδ",
+    "email": "nickcdavid@gmail.com",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305743/david_kcvonu.webm",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767776/David_fdo5qa.png"
+  },
+  {
+    "id": 22,
+    "first_name": "Θεόφιλος",
+    "last_name": "Ιωαννίδης",
+    "email": "tioann@teemail.gr",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305768/ioannidis_dl2fkk.webm",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767772/Ioannidis_on0g4z.jpg"
+  },
+  {
+    "id": 30,
+    "first_name": "Ρωσσέτος",
+    "last_name": "Λούζης",
+    "email": "roslouzis@yahoo.gr",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305737/louzis_c3dvpz.webm",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767769/Loyzis_szzh4t.jpg"
+  },
+  {
+    "id": 33,
+    "first_name": "Γιώργος",
+    "last_name": "Μεταξάς",
+    "email": "geometax12@gmail.com",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305765/metaxas_vqe1yh.webm",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767762/Metaxas_hnlgje.png"
+  },
+  {
+    "id": 40,
+    "first_name": "Μάκης",
+    "last_name": "Παπαβασιλείου",
+    "email": "pap@hre.gr",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305751/papavasiliou_uz5qle.webm",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767767/Papavas_tt3m8z.jpg"
+  },
+  {
+    "id": 45,
+    "first_name": "Σταμάτης",
+    "last_name": "Πίτσης",
+    "email": "stam.pitsis@gmail.com",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305753/pitsis_z7tb0y.webm",
+    "photo_link_cloud": ""
+  },
+  {
+    "id": 56,
+    "first_name": "Θεοδ.",
+    "last_name": "Τσαγκαράκης",
+    "email": "tsagkarakistheodoros@gmail.com",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305748/tsagarakis_fcrpek.webm",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767763/Tsaggarakis_ihv4tl.jpg"
+  },
+  {
+    "id": 58,
+    "first_name": "Παναγ.",
+    "last_name": "Τσιλιλιγγίρης",
+    "email": "ptsiling@uniwa.gr",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305745/tsiligiris_jukby5.webm",
+    "photo_link_cloud": ""
+  },
+  {
+    "id": 61,
+    "first_name": "Φώτης",
+    "last_name": "Τσοπέλας",
+    "email": "fotis.tsopelas@yahoo.gr",
+    "cloud_url": "https://res.cloudinary.com/dao9d1ozc/video/upload/v1782305749/tsopelas_iwosgw.webm",
+    "photo_link_cloud": ""
+  }
+]

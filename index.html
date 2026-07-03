@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Alumni 1976 · Σχολή Ηλεκτρολόγων Μηχανικών · Πανεπιστήμιο Πατρών</title>
+
+  <meta
+    name="description"
+    content="Ψηφιακός χώρος των αποφοίτων 1976 της Σχολής Ηλεκτρολόγων Μηχανικών του Πανεπιστημίου Πατρών."
+  />
+  <meta property="og:title" content="Alumni 1976 · Πανεπιστήμιο Πατρών" />
+  <meta
+    property="og:description"
+    content="Σκέψεις, αναμνήσεις, φωτογραφίες και εκδηλώσεις των αποφοίτων Ηλεκτρολόγων Μηχανικών του 1976."
+  />
+  <meta property="og:image" content="https://drive.google.com/thumbnail?id=1_fP9DxqJCAR2alZBsccNE2t6_3BhF_Ic&sz=w1200" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Preconnect for faster external resource loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://hpnrlshfxxcyujrxegka.supabase.co">
+  <link rel="preconnect" href="https://drive.google.com">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Crimson+Pro:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+    media="print"
+    onload="this.media='all'"
+  />
+
+  <link rel="stylesheet" href="./css/styles.css?v=1.0.1">
+</head>
+
+<body>
+
+  <nav class="site-nav" role="navigation" aria-label="Κύρια Πλοήγηση">
+    <a href="#/home" class="logo site-brand" data-route="home" aria-label="Alumni 1976 Αρχική">
+      <img
+        src="./assets/logo/concard50years.png"
+        alt="Alumni 1976 Logo"
+        width="50"
+        height="50"
+        loading="lazy"
+      />
+      <span class="logo-text site-brand-text">Alumni <span>1976</span></span>
+    </a>
+    <a href="#/reunion" class="reunion-link" style="margin-left:12px;font-weight:600;">50th Reunion</a>
+
+    <div class="nav-menu-area">
+      <ul id="menu" class="site-menu" role="menubar"></ul>
+
+      <div class="theme-control" aria-label="Επιλογή εμφάνισης ιστοσελίδας">
+        <label for="themeSelector">Στυλ</label>
+        <select id="themeSelector" aria-label="Επιλογή θέματος">
+          <option value="style-deep-navy-university">Deep Navy University</option>
+          <option value="style-academic-gold">Academic Gold</option>
+          <option value="style-engineering-tech">Engineering Tech</option>
+          <option value="style-executive-alumni">Executive Alumni</option>
+          <option value="style-polytechnic-heritage">Polytechnic Heritage</option>
+        </select>
+      </div>
+    </div>
+  </nav>
+
+  <main id="app" aria-live="polite">
+    <div class="loading" role="status" aria-label="Φόρτωση περιεχομένου">
+      <span class="loading-spinner"></span>
+      <span>Φόρτωση...</span>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner footer-centered">
+      <a href="#/home" class="logo footer-logo-link" data-route="home" aria-label="Alumni 1976 Home">
+        <img
+          src="https://drive.google.com/thumbnail?id=1_fP9DxqJCAR2alZBsccNE2t6_3BhF_Ic&sz=w150"
+          alt="Alumni 1976 Logo"
+          width="75"
+          height="75"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+
+      <div class="footer-logo">Alumni <span>1976</span></div>
+
+      <div class="footer-center">
+        Σχολή Ηλεκτρολόγων Μηχανικών · Πανεπιστήμιο Πατρών<br>
+        <span>© 2026 Σύλλογος Αποφοίτων 1976</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Legacy script with data attributes -->
+  <script
+    src="./js/database.js?v=1.0.2"
+    id="supabase-db"
+    data-apikey="sb_publishable_Z-a7txOn8hNxk2MtHDME3A_axCrWbPB"
+    data-sql="select=item,url&order=id.asc"
+    defer>
+  </script>
+
+  <!-- Module scripts - loaded with type="module" -->
+  <script type="module" src="./js/app.js?v=1.0.2"></script>
+  <script type="module" src="./js/theme-selector.js?v=1.0.2"></script>
+
+</body>
+</html>

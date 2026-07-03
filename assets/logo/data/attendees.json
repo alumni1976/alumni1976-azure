@@ -1,0 +1,485 @@
+﻿[
+  {
+    "id": 3,
+    "first_name": "Γιώργος",
+    "last_name": "Αγγελέτος",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 4,
+    "first_name": "Λεωνίδας",
+    "last_name": "Αγγελιδάκης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 5,
+    "first_name": "Ρετζούμπ Μωχάμετ",
+    "last_name": "Αλ",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 6,
+    "first_name": "Μανώλης",
+    "last_name": "Αγοραστάκης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 7,
+    "first_name": "Δημ.",
+    "last_name": "Αναστασιάδης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 8,
+    "first_name": "Ανδ.",
+    "last_name": "Ανδρικόπουλος",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 9,
+    "first_name": "Αλεξ.",
+    "last_name": "Βακαλόπουλος",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 10,
+    "first_name": "Γεωρ.",
+    "last_name": "Βαρδουνιώτης",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 11,
+    "first_name": "Παναγ.",
+    "last_name": "Βίτσιος",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 12,
+    "first_name": "Γεωργ.",
+    "last_name": "Γαρεφαλάκης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 13,
+    "first_name": "Ντίνος",
+    "last_name": "Γεωργούλας",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767767/Georgoulas_elwiwj.jpg",
+    "attended": true
+  },
+  {
+    "id": 14,
+    "first_name": "Νίκος",
+    "last_name": "Γιαγκλίτσης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 15,
+    "first_name": "Θανάσης",
+    "last_name": "Γραμματικός",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 16,
+    "first_name": "Νίκος",
+    "last_name": "Δαβίδ",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767776/David_fdo5qa.png",
+    "attended": true
+  },
+  {
+    "id": 17,
+    "first_name": "Γεωργ.",
+    "last_name": "Δελαστίκ",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767756/Delastik_yxj6b1.webp",
+    "attended": false
+  },
+  {
+    "id": 18,
+    "first_name": "Σπύρος",
+    "last_name": "Δελής",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 19,
+    "first_name": "Περικλής",
+    "last_name": "Ζιώγος",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 20,
+    "first_name": "Μιχάλης",
+    "last_name": "Ζουρνάς",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 21,
+    "first_name": "Χρήστος",
+    "last_name": "Θεοδωρακόπουλος",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 22,
+    "first_name": "Θεόφιλος",
+    "last_name": "Ιωαννίδης",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767772/Ioannidis_on0g4z.jpg",
+    "attended": true
+  },
+  {
+    "id": 23,
+    "first_name": "Πέτρος",
+    "last_name": "Καπαράκης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 24,
+    "first_name": "",
+    "last_name": "Καπνουλάς",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 25,
+    "first_name": "Νίκος",
+    "last_name": "Κάργας",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1781845362/kargas_m8mbca.jpg",
+    "attended": true
+  },
+  {
+    "id": 26,
+    "first_name": "Μίμης",
+    "last_name": "Κολέτσος",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767757/Koletsos_eepseu.jpg",
+    "attended": false
+  },
+  {
+    "id": 27,
+    "first_name": "Σταύρος",
+    "last_name": "Κουμπιάς",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767765/Koubias_ipo1zm.jpg",
+    "attended": true
+  },
+  {
+    "id": 28,
+    "first_name": "Αρ.",
+    "last_name": "Κουρούνης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 29,
+    "first_name": "Σωτήρης",
+    "last_name": "Λαύκας",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767768/Lafkas_uo5mml.jpg",
+    "attended": true
+  },
+  {
+    "id": 30,
+    "first_name": "Ρωσσέτος",
+    "last_name": "Λούζης",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767769/Loyzis_szzh4t.jpg",
+    "attended": true
+  },
+  {
+    "id": 31,
+    "first_name": "Παν.",
+    "last_name": "Λυκογιώργος",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 32,
+    "first_name": "Μανώλης",
+    "last_name": "Μάλης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 33,
+    "first_name": "Γιώργος",
+    "last_name": "Μεταξάς",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767762/Metaxas_hnlgje.png",
+    "attended": true
+  },
+  {
+    "id": 34,
+    "first_name": "Στέλιος",
+    "last_name": "Μέτος",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 35,
+    "first_name": "Φίλιππος",
+    "last_name": "Μπάρδης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 36,
+    "first_name": "Γιώργος",
+    "last_name": "Μπασούλης",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 37,
+    "first_name": "Κωνστ.",
+    "last_name": "Νταλιάνης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 38,
+    "first_name": "Χάρης",
+    "last_name": "Ορφανός",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 39,
+    "first_name": "Παναγιώτης",
+    "last_name": "Πάνος",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 40,
+    "first_name": "Μάκης",
+    "last_name": "Παπαβασιλείου",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767767/Papavas_tt3m8z.jpg",
+    "attended": true
+  },
+  {
+    "id": 41,
+    "first_name": "Γιάννης",
+    "last_name": "Παπαθανασίου",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 42,
+    "first_name": "Βασιλ.",
+    "last_name": "Παπανικολάου",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767764/Papanikolaou_ouvql3.jpg",
+    "attended": true
+  },
+  {
+    "id": 43,
+    "first_name": "Στάθης",
+    "last_name": "Παπουτσής",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767760/Papoutsis_ilgnen.jpg",
+    "attended": true
+  },
+  {
+    "id": 44,
+    "first_name": "Αντώνης",
+    "last_name": "Πιταριδάκης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 45,
+    "first_name": "Σταμάτης",
+    "last_name": "Πίτσης",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 46,
+    "first_name": "Δημήτρης",
+    "last_name": "Ρόκκος",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 47,
+    "first_name": "Γεώργιος",
+    "last_name": "Σιφωνιός",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 48,
+    "first_name": "Νικόλαος",
+    "last_name": "Σκορδύλης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 49,
+    "first_name": "Χρήστος",
+    "last_name": "Σπίγκος",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767759/Spigos_vbttwm.jpg",
+    "attended": true
+  },
+  {
+    "id": 50,
+    "first_name": "Δημήτρης",
+    "last_name": "Σούλτης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 51,
+    "first_name": "Ευαγ.",
+    "last_name": "Σταθόπουλος",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 52,
+    "first_name": "Ανδρέας",
+    "last_name": "Τασσής",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767773/Tassis_tspai0.jpg",
+    "attended": true
+  },
+  {
+    "id": 53,
+    "first_name": "Θεόδωρος",
+    "last_name": "Τζάμος",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767761/Tzamos_b36nxk.png",
+    "attended": true
+  },
+  {
+    "id": 54,
+    "first_name": "Μιχάλης",
+    "last_name": "Τζιόλας",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 55,
+    "first_name": "Θόδωρος",
+    "last_name": "Τζιομάκας",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 56,
+    "first_name": "Θεοδ.",
+    "last_name": "Τσαγκαράκης",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767763/Tsaggarakis_ihv4tl.jpg",
+    "attended": true
+  },
+  {
+    "id": 57,
+    "first_name": "Βασίλης",
+    "last_name": "Τσίλης",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 58,
+    "first_name": "Παναγ.",
+    "last_name": "Τσιλιλιγγίρης",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 59,
+    "first_name": "Ανδρέας",
+    "last_name": "Τσιούστας",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 60,
+    "first_name": "Κων/νος",
+    "last_name": "Τσιμπρής",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 61,
+    "first_name": "Φώτης",
+    "last_name": "Τσοπέλας",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 62,
+    "first_name": "Αλέκος",
+    "last_name": "Τσουκαλής",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767770/Tsoukalis_r9s4bt.jpg",
+    "attended": false
+  },
+  {
+    "id": 63,
+    "first_name": "Κρέων",
+    "last_name": "Φλωρίδης",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767766/Floridis_sltuv8.jpg",
+    "attended": false
+  },
+  {
+    "id": 64,
+    "first_name": "Διονυσία",
+    "last_name": "Φούρλαρη",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1780767762/Foyrlari_wnh1no.jpg",
+    "attended": true
+  },
+  {
+    "id": 65,
+    "first_name": "Βαγγέλης",
+    "last_name": "Χαμηλοθώρης",
+    "photo_link_cloud": "",
+    "attended": true
+  },
+  {
+    "id": 66,
+    "first_name": "Σάκης",
+    "last_name": "Χαντάβας",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 67,
+    "first_name": "Νίκος",
+    "last_name": "Χατζηαργυρίου",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 68,
+    "first_name": "Σάββας",
+    "last_name": "Χατζηγαβριήλ",
+    "photo_link_cloud": "https://res.cloudinary.com/dao9d1ozc/image/upload/v1781706283/Hatzigavriil_jtekut.jpg",
+    "attended": false
+  },
+  {
+    "id": 69,
+    "first_name": "Θωμάς",
+    "last_name": "Χατζηθωμάς",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 70,
+    "first_name": "Κων.",
+    "last_name": "Χριστοφορίδης",
+    "photo_link_cloud": "",
+    "attended": false
+  },
+  {
+    "id": 71,
+    "first_name": "Ιωάννης",
+    "last_name": "Χρυσοχός",
+    "photo_link_cloud": "",
+    "attended": false
+  }
+]
