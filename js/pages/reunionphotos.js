@@ -1,198 +1,378 @@
-const DATA_URL = './assets/data/photos.json';
-
-const PHOTOS_PER_VIEW   = 2;
-const SLIDE_INTERVAL_MS = 5000;
-const FADE_DELAY_MS     = 180;
+import { API_BASE } from "../api/apiConfig.js";
 
 let photos = [];
-let currentPairIndex = 0;
-let slideshowTimer   = null;
-let slideIntervalMs  = SLIDE_INTERVAL_MS;
+let currentIndex = 0;
+let keyHandler = null;
 
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
-
-function photoUrl(p)   { return String(p.url_cloud || p.imgurl || p.cloud_url || '').trim(); }
-function photoTitle(p) { return String(p.title || p.first_name && `${p.first_name} ${p.last_name}` || 'Φωτογραφία').trim(); }
 
 export async function render() {
   return `
-    <div class="profs-header photos-header">
-      <div class="profs-eyebrow">REUNION 2026</div>
-      <h1>Φωτογραφικό <em>Υλικό</em></h1>
-      <p>Στιγμές από τη συνάντηση των 50 χρόνων στο Πανεπιστήμιο Πατρών, 20 Ιουνίου 2026.</p>
-    </div>
-    <main class="photos-main">
-      <section class="photos-section">
-        <div class="photos-section-head">
-          <div>
-            <p class="section-tag">ΑΝΑΜΝΗΣΤΙΚΕΣ ΣΤΙΓΜΕΣ</p>
-            <h2>Δύο φωτογραφίες κάθε φορά</h2>
-          </div>
-          <div class="photos-count" id="rpCount"></div>
-        </div>
-        <div id="rpMessage" class="photos-message">Φόρτωση φωτογραφιών...</div>
-        <div id="rpCarousel" class="photo-carousel hidden">
-          <div id="rpPair" class="photo-pair"></div>
-          <div class="photo-speed-control">
-            <label for="rpSpeedRange">Ταχύτητα: <span id="rpSpeedValue">5</span>&nbsp;δευτ.</label>
-            <input type="range" id="rpSpeedRange" min="3" max="10" step="1" value="5">
-          </div>
-          <div id="rpDots" class="photo-dots"></div>
-          <div class="photo-carousel-toolbar">
-            <button id="rpPrev" class="photo-carousel-btn" type="button">← Προηγούμενες</button>
-            <button id="rpNext" class="photo-carousel-btn" type="button">Επόμενες →</button>
-          </div>
-        </div>
-        <div id="rpEmpty" class="rg-card hidden" style="text-align:center;padding:3rem">
-          <p style="font-size:1.1rem;color:var(--muted)">📸 Οι φωτογραφίες θα αναρτηθούν σύντομα…</p>
-        </div>
-      </section>
-    </main>
-    <div id="rpLightbox" class="photo-lightbox hidden" aria-hidden="true">
-      <button id="rpLightboxClose" class="photo-lightbox-close" aria-label="Κλείσιμο">×</button>
-      <div class="photo-lightbox-inner">
-        <img id="rpLightboxImg" src="" alt="">
-        <div class="photo-lightbox-text">
-          <h3 id="rpLightboxTitle"></h3>
-        </div>
+    <section class="reunion-photos-page">
+      <header class="reunion-photos-header">
+        <div class="reunion-eyebrow">REUNION 2026</div>
+        <h1>Φωτογραφίες από το Reunion</h1>
+        <p>
+          Στιγμές από τη συνάντηση των αποφοίτων Ηλεκτρολόγων Μηχανικών
+          του Πανεπιστημίου Πατρών, 50 χρόνια μετά.
+        </p>
+      </header>
+
+      <div id="reunionPhotosMessage" class="reunion-photos-message">
+        Φόρτωση φωτογραφιών...
       </div>
+
+      <div id="reunionPhotosGrid" class="reunion-photos-grid" hidden></div>
+    </section>
+
+    <div id="reunionLightbox" class="reunion-lightbox hidden" role="dialog"
+         aria-modal="true" aria-label="Προβολή φωτογραφίας">
+      <button id="reunionClose" class="reunion-close" type="button" aria-label="Κλείσιμο">×</button>
+      <button id="reunionPrev" class="reunion-nav reunion-prev" type="button" aria-label="Προηγούμενη">‹</button>
+
+      <figure class="reunion-lightbox-content">
+        <img id="reunionLightboxImage" alt="">
+        <figcaption id="reunionLightboxCaption"></figcaption>
+      </figure>
+
+      <button id="reunionNext" class="reunion-nav reunion-next" type="button" aria-label="Επόμενη">›</button>
     </div>
   `;
 }
 
 export async function afterRender() {
-  const message = document.getElementById('rpMessage');
-  const countEl = document.getElementById('rpCount');
-  const carousel= document.getElementById('rpCarousel');
-  const emptyEl = document.getElementById('rpEmpty');
-  stopSlideshow();
+  injectStyles();
+
+  const message = document.getElementById("reunionPhotosMessage");
+  const grid = document.getElementById("reunionPhotosGrid");
 
   try {
-    const res  = await fetch(DATA_URL);
-    photos = (await res.json()).filter(p => photoUrl(p));
+    const response = await fetch(`${API_BASE}/api/reunionphotos`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store"
+    });
 
-    message.textContent = '';
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    if (!Array.isArray(result.data)) {
+      throw new Error("Η απάντηση του API δεν περιέχει πίνακα data.");
+    }
+
+    photos = result.data.filter(photo =>
+      photo &&
+      photo.show !== false &&
+      String(photo.cloudUrl || "").trim()
+    );
 
     if (!photos.length) {
-      emptyEl.classList.remove('hidden');
-      if (countEl) countEl.textContent = '0 φωτογραφίες';
+      message.textContent = "Δεν υπάρχουν διαθέσιμες φωτογραφίες.";
       return;
     }
 
-    carousel.classList.remove('hidden');
-    if (countEl) countEl.textContent = `${photos.length} ${photos.length === 1 ? 'φωτογραφία' : 'φωτογραφίες'}`;
-    currentPairIndex = 0;
-    renderPair(true);
-    renderDots();
-    attachCarouselEvents();
-    startSlideshow();
+    message.textContent =
+      `${photos.length} ${photos.length === 1 ? "φωτογραφία" : "φωτογραφίες"} · ` +
+      `Βάση: ${result.databaseName || "άγνωστη"}`;
 
-  } catch (err) {
-    console.error(err);
-    message.textContent = 'Αποτυχία φόρτωσης φωτογραφιών.';
+    grid.innerHTML = photos.map((photo, index) => {
+      const title = String(photo.title || "").trim();
+      const caption = String(photo.caption || "").trim();
+      const alt = title || caption || `Φωτογραφία Reunion ${index + 1}`;
+
+      return `
+        <article class="reunion-photo-card">
+          <button class="reunion-photo-button" type="button"
+                  data-index="${index}" aria-label="Μεγέθυνση: ${escapeHtml(alt)}">
+            <img src="${escapeHtml(photo.cloudUrl)}"
+                 alt="${escapeHtml(alt)}"
+                 loading="lazy"
+                 decoding="async">
+          </button>
+          <div class="reunion-photo-info">
+            ${title ? `<h2>${escapeHtml(title)}</h2>` : ""}
+            ${caption ? `<p>${escapeHtml(caption)}</p>` : ""}
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    grid.hidden = false;
+    attachEvents();
+  } catch (error) {
+    console.error("Reunion photos error:", error);
+    message.innerHTML = `
+      <strong>Δεν ήταν δυνατή η φόρτωση των φωτογραφιών.</strong><br>
+      <span>${escapeHtml(error.message || error)}</span>
+    `;
   }
 }
 
-function totalPairs() { return Math.ceil(photos.length / PHOTOS_PER_VIEW); }
-
-function getCurrentPair() {
-  const start = currentPairIndex * PHOTOS_PER_VIEW;
-  const pair  = photos.slice(start, start + PHOTOS_PER_VIEW);
-  if (pair.length === 1 && photos.length > 1) pair.push(photos[0]);
-  return pair;
-}
-
-function renderPair(immediate = false) {
-  const pairEl = document.getElementById('rpPair');
-  if (!pairEl) return;
-  if (!pairEl.dataset.initialized) {
-    pairEl.innerHTML = Array.from({ length: PHOTOS_PER_VIEW }, () => `
-      <article class="photo-slide-card">
-        <div class="photo-slide-frame"><img src="" alt="" loading="lazy"></div>
-        <h3></h3>
-      </article>`).join('');
-    pairEl.dataset.initialized = 'true';
-  }
-  pairEl.classList.remove('is-visible');
-  const draw = () => {
-    const cur = getCurrentPair();
-    pairEl.querySelectorAll('.photo-slide-card').forEach((card, i) => {
-      const p   = cur[i];
-      const img = card.querySelector('img');
-      const h3  = card.querySelector('h3');
-      if (!p) { card.classList.add('photo-empty'); img && (img.src=''); h3 && (h3.textContent=''); return; }
-      card.classList.remove('photo-empty','photo-error');
-      card.dataset.full  = photoUrl(p);
-      card.dataset.title = photoTitle(p);
-      if (img) { img.alt = photoTitle(p); img.onerror = () => card.classList.add('photo-error'); if (img.src !== photoUrl(p)) img.src = photoUrl(p); }
-      if (h3)  h3.textContent = photoTitle(p);
+function attachEvents() {
+  document.querySelectorAll(".reunion-photo-button").forEach(button => {
+    button.addEventListener("click", () => {
+      currentIndex = Number(button.dataset.index);
+      openLightbox();
     });
-    attachPhotoEvents();
-    pairEl.classList.add('is-visible');
-  };
-  immediate ? draw() : setTimeout(draw, FADE_DELAY_MS);
-}
-
-function renderDots() {
-  const dots = document.getElementById('rpDots');
-  if (!dots) return;
-  dots.innerHTML = Array.from({ length: totalPairs() }, (_, i) =>
-    `<button class="photo-dot ${i===currentPairIndex?'active':''}" type="button" data-index="${i}" aria-label="Ομάδα ${i+1}"></button>`
-  ).join('');
-  dots.querySelectorAll('.photo-dot').forEach(d => {
-    d.addEventListener('click', () => { currentPairIndex=Number(d.dataset.index); renderPair(); renderDots(); restartSlideshow(); });
-  });
-}
-
-function nextPair() { if (!photos.length) return; currentPairIndex=(currentPairIndex+1)%totalPairs(); renderPair(); renderDots(); }
-function prevPair() { if (!photos.length) return; currentPairIndex=(currentPairIndex-1+totalPairs())%totalPairs(); renderPair(); renderDots(); }
-function startSlideshow() { stopSlideshow(); if (photos.length>PHOTOS_PER_VIEW) slideshowTimer=setInterval(nextPair,slideIntervalMs); }
-function stopSlideshow()  { if (slideshowTimer) { clearInterval(slideshowTimer); slideshowTimer=null; } }
-function restartSlideshow(){ stopSlideshow(); startSlideshow(); }
-
-function attachCarouselEvents() {
-  const prevBtn    = document.getElementById('rpPrev');
-  const nextBtn    = document.getElementById('rpNext');
-  const speedRange = document.getElementById('rpSpeedRange');
-  const speedValue = document.getElementById('rpSpeedValue');
-  if (prevBtn)    prevBtn.onclick = () => { prevPair(); restartSlideshow(); };
-  if (nextBtn)    nextBtn.onclick = () => { nextPair(); restartSlideshow(); };
-  if (speedRange) speedRange.oninput = () => {
-    let s = Math.min(Math.max(Number(speedRange.value),3),10);
-    slideIntervalMs = s*1000;
-    if (speedValue) speedValue.textContent = String(s);
-    restartSlideshow();
-  };
-}
-
-function attachPhotoEvents() {
-  const lightbox      = document.getElementById('rpLightbox');
-  const lightboxImg   = document.getElementById('rpLightboxImg');
-  const lightboxTitle = document.getElementById('rpLightboxTitle');
-  const closeBtn      = document.getElementById('rpLightboxClose');
-
-  document.querySelectorAll('.photo-slide-card').forEach(card => {
-    card.onclick = () => {
-      stopSlideshow();
-      lightboxImg.src        = card.dataset.full  || '';
-      lightboxImg.alt        = card.dataset.title || '';
-      lightboxTitle.textContent = card.dataset.title || '';
-      lightbox.classList.remove('hidden');
-      lightbox.setAttribute('aria-hidden','false');
-      document.body.classList.add('lightbox-open');
-    };
   });
 
-  const close = () => {
-    lightbox.classList.add('hidden');
-    lightbox.setAttribute('aria-hidden','true');
-    lightboxImg.src = '';
-    document.body.classList.remove('lightbox-open');
-    restartSlideshow();
+  document.getElementById("reunionClose")?.addEventListener("click", closeLightbox);
+  document.getElementById("reunionPrev")?.addEventListener("click", showPrevious);
+  document.getElementById("reunionNext")?.addEventListener("click", showNext);
+
+  document.getElementById("reunionLightbox")?.addEventListener("click", event => {
+    if (event.target.id === "reunionLightbox") closeLightbox();
+  });
+
+  if (keyHandler) document.removeEventListener("keydown", keyHandler);
+
+  keyHandler = event => {
+    const lightbox = document.getElementById("reunionLightbox");
+    if (!lightbox || lightbox.classList.contains("hidden")) return;
+
+    if (event.key === "Escape") closeLightbox();
+    if (event.key === "ArrowLeft") showPrevious();
+    if (event.key === "ArrowRight") showNext();
   };
-  if (closeBtn) closeBtn.onclick = close;
-  if (lightbox) lightbox.onclick = e => { if (e.target===lightbox) close(); };
-  document.onkeydown = e => { if (e.key==='Escape' && !lightbox.classList.contains('hidden')) close(); };
+
+  document.addEventListener("keydown", keyHandler);
+}
+
+function openLightbox() {
+  const lightbox = document.getElementById("reunionLightbox");
+  if (!lightbox || !photos.length) return;
+
+  showCurrentPhoto();
+  lightbox.classList.remove("hidden");
+  document.body.classList.add("reunion-lightbox-open");
+}
+
+function closeLightbox() {
+  document.getElementById("reunionLightbox")?.classList.add("hidden");
+  document.body.classList.remove("reunion-lightbox-open");
+}
+
+function showPrevious() {
+  currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+  showCurrentPhoto();
+}
+
+function showNext() {
+  currentIndex = (currentIndex + 1) % photos.length;
+  showCurrentPhoto();
+}
+
+function showCurrentPhoto() {
+  const photo = photos[currentIndex];
+  if (!photo) return;
+
+  const title = String(photo.title || "").trim();
+  const caption = String(photo.caption || "").trim();
+  const image = document.getElementById("reunionLightboxImage");
+  const text = document.getElementById("reunionLightboxCaption");
+
+  image.src = photo.cloudUrl;
+  image.alt = title || caption || `Φωτογραφία Reunion ${currentIndex + 1}`;
+
+  text.innerHTML = `
+    ${title ? `<strong>${escapeHtml(title)}</strong>` : ""}
+    ${caption ? `<span>${escapeHtml(caption)}</span>` : ""}
+  `;
+}
+
+function injectStyles() {
+  if (document.getElementById("reunionPhotosStyles")) return;
+
+  const style = document.createElement("style");
+  style.id = "reunionPhotosStyles";
+  style.textContent = `
+    .reunion-photos-page {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 42px 28px 80px;
+    }
+
+    .reunion-photos-header {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .reunion-eyebrow {
+      color: #B8944A;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      margin-bottom: 10px;
+    }
+
+    .reunion-photos-header h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+    }
+
+    .reunion-photos-header p {
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.65;
+      opacity: .82;
+    }
+
+    .reunion-photos-message {
+      text-align: center;
+      margin-bottom: 24px;
+      opacity: .82;
+    }
+
+    .reunion-photos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 22px;
+    }
+
+    .reunion-photo-card {
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--surface, #fff);
+      border: 1px solid var(--border, rgba(0,0,0,.12));
+      box-shadow: 0 8px 24px rgba(0,0,0,.10);
+    }
+
+    .reunion-photo-button {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: #111;
+      cursor: zoom-in;
+      overflow: hidden;
+    }
+
+    .reunion-photo-button img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      transition: transform .3s ease;
+    }
+
+    .reunion-photo-button:hover img {
+      transform: scale(1.04);
+    }
+
+    .reunion-photo-info {
+      padding: 16px 18px 18px;
+    }
+
+    .reunion-photo-info h2 {
+      margin: 0 0 7px;
+      color: #B8944A;
+      font-size: 1rem;
+    }
+
+    .reunion-photo-info p {
+      margin: 0;
+      line-height: 1.5;
+      opacity: .78;
+    }
+
+    .reunion-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      grid-template-columns: 60px minmax(0, 1fr) 60px;
+      align-items: center;
+      background: rgba(0,0,0,.94);
+      padding: 54px 16px 18px;
+    }
+
+    .reunion-lightbox.hidden {
+      display: none;
+    }
+
+    .reunion-lightbox-content {
+      margin: 0;
+      text-align: center;
+      color: white;
+    }
+
+    .reunion-lightbox-content img {
+      max-width: 100%;
+      max-height: calc(100vh - 140px);
+      object-fit: contain;
+    }
+
+    .reunion-lightbox-content figcaption {
+      display: grid;
+      gap: 5px;
+      margin-top: 12px;
+    }
+
+    .reunion-close,
+    .reunion-nav {
+      border: 0;
+      color: white;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .reunion-close {
+      position: absolute;
+      top: 8px;
+      right: 18px;
+      font-size: 2.7rem;
+    }
+
+    .reunion-nav {
+      font-size: 3rem;
+    }
+
+    .reunion-close:hover,
+    .reunion-nav:hover {
+      color: #B8944A;
+    }
+
+    .reunion-lightbox-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 650px) {
+      .reunion-photos-page {
+        padding: 28px 12px 60px;
+      }
+
+      .reunion-photos-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .reunion-photo-info {
+        padding: 11px 12px 13px;
+      }
+
+      .reunion-lightbox {
+        grid-template-columns: 34px minmax(0, 1fr) 34px;
+        padding-inline: 4px;
+      }
+
+      .reunion-nav {
+        font-size: 2.2rem;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
 }
