@@ -144,6 +144,17 @@ export async function render() {
           </div>
         </details>
 
+        <details class="faq-item">
+          <summary class="faq-question">12. Σχετικά με το 50th Reunion</summary>
+          <div class="faq-answer">
+            <p>
+              Μέσω του συνδέσμου <a href="#/reunion"><strong>50th Reunion</strong></a> παρουσιάζεται υλικό
+              από τη συνάντηση των 50 χρόνων, με βίντεο, φωτογραφίες και δηλώσεις
+              των πρωταγωνιστών της εκδήλωσης.
+            </p>
+          </div>
+        </details>
+
       </div>
 
       <div class="faq-note">
