@@ -40,10 +40,6 @@ function memorialLabel(member) {
   return isDeceased(member) ? "✝ Στη μνήμη" : "";
 }
 
-function linkValue(primary, cloud) {
-  return String(cloud || primary || "").trim();
-}
-
 export async function render() {
   return `
     <section class="directory-page">
@@ -52,12 +48,22 @@ export async function render() {
 
       <p>Επιλέξτε απόφοιτο από τη λίστα.</p>
 
-      <div class="member-search-box">
-        <input id="memberSearch" type="text" placeholder="Αναζήτηση με επώνυμο..." autocomplete="off">
-        <div id="memberOptions" class="member-options"></div>
-      </div>
+      <div class="directory-layout">
+        <div class="directory-list-column">
+          <div class="member-search-box">
+            <input id="memberSearch" type="text" placeholder="Αναζήτηση με επώνυμο..." autocomplete="off">
+            <div id="memberOptions" class="member-options"></div>
+          </div>
+        </div>
 
-      <div id="memberDetails" class="member-details"></div>
+        <div class="directory-details-column">
+          <div id="memberDetails" class="member-details">
+            <div class="member-details-placeholder">
+              Επιλέξτε ένα μέλος από τη λίστα για να εμφανιστούν τα στοιχεία του.
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   `;
 }
@@ -101,7 +107,7 @@ export async function afterRender() {
 
     optionsBox.innerHTML = filtered.map(m => {
       const deceased = isDeceased(m);
-      const thumb = String(m.photoLink || "").trim();
+      const thumb = String(m.photoLinkClord || "").trim();
       const name = fullName(m);
       const optionClass = deceased
         ? "member-option member-option-deceased"
@@ -131,9 +137,9 @@ export async function afterRender() {
   }
 
   function renderDetails(member) {
-    const photo = String(member.photoLink || "").trim();
-    const cvUrl = linkValue(member.cvLink, member.cvLinkClord);
-    const mediaUrl = linkValue(member.mediaLink, member.mediaLinkClord);
+    const photo = String(member.photoLinkClord || "").trim();
+    const cvUrl = String(member.cvLinkClord || "").trim();
+    const mediaUrl = String(member.mediaLinkClord || "").trim();
 
     const avatar = `
       <div class="member-photo avatar-gold">

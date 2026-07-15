@@ -66,8 +66,8 @@ function isDeceased(member) {
 }
 
 function resolvePhotoSrc(member) {
-  return hasValue(member.photoLink)
-    ? String(member.photoLink).trim()
+  return hasValue(member.photoLinkClord)
+    ? String(member.photoLinkClord).trim()
     : "";
 }
 
@@ -107,7 +107,7 @@ export async function afterRender() {
     const visibleMembers = members.filter(member => {
       const first = hasValue(member.firstName);
       const last = hasValue(member.lastName);
-      const photo = hasValue(member.photoLink);
+      const photo = hasValue(member.photoLinkClord);
 
       return photo && (first || last);
     });

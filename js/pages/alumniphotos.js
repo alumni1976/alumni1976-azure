@@ -25,7 +25,7 @@ function photoTitle(photo) {
 }
 
 function photoUrl(photo) {
-  return String(photo.urlCloud || photo.url || "").trim();
+  return String(photo.urlCloud || "").trim();
 }
 
 export async function render() {

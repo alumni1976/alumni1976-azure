@@ -2647,3 +2647,479 @@ body.style-executive-alumni .theme-control select {
   color: var(--gold);
   opacity: .7;
 }
+
+
+/* ==========================================
+   DIRECTORY HEIGHT + FOOTER HORIZONTAL LAYOUT
+   Keeps the directory list close to the footer and
+   distributes footer content across the available width.
+========================================== */
+
+@media (min-width: 721px) {
+  .directory-page .member-options {
+    height: clamp(420px, 58vh, 620px);
+    max-height: none;
+  }
+
+  .footer-inner.footer-centered,
+  .footer-centered {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.4rem;
+    text-align: left;
+  }
+
+  .footer-inner.footer-centered .footer-center,
+  .footer-centered .footer-center {
+    text-align: center;
+  }
+
+  .footer-inner.footer-centered .footer-links,
+  .footer-centered .footer-links {
+    display: flex !important;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 720px) {
+  .directory-page .member-options {
+    height: clamp(360px, 55vh, 500px);
+    max-height: none;
+  }
+
+  .footer-inner.footer-centered,
+  .footer-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .footer-inner.footer-centered .footer-links,
+  .footer-centered .footer-links {
+    display: flex !important;
+    justify-content: center;
+  }
+}
+
+/* ==========================================
+   DIRECTORY + FOOTER FINAL REFINEMENT
+   1. Uses more of the available vertical space.
+   2. Places school name and copyright on one line,
+      at opposite sides of the footer.
+   Applies globally to every SPA page using this footer.
+========================================== */
+
+@media (min-width: 721px) {
+  .directory-page {
+    padding-bottom: 28px;
+  }
+
+  .directory-page .member-options {
+    height: clamp(500px, 66vh, 680px);
+    max-height: none;
+  }
+
+  .site-footer,
+  footer {
+    padding: 1.75rem 2rem;
+  }
+
+  .footer-inner.footer-centered,
+  .footer-centered {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 1.4rem;
+    row-gap: 0;
+    text-align: left;
+  }
+
+  .footer-inner.footer-centered .footer-center,
+  .footer-centered .footer-center {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .footer-inner.footer-centered .footer-center span,
+  .footer-centered .footer-center span {
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .footer-inner.footer-centered .footer-links,
+  .footer-centered .footer-links {
+    display: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .directory-page {
+    padding-bottom: 42px;
+  }
+
+  .directory-page .member-options {
+    height: clamp(390px, 58vh, 520px);
+    max-height: none;
+  }
+
+  .footer-inner.footer-centered .footer-center,
+  .footer-centered .footer-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .footer-inner.footer-centered .footer-center span,
+  .footer-centered .footer-center span {
+    margin-left: 0;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .footer-inner.footer-centered .footer-links,
+  .footer-centered .footer-links {
+    display: none !important;
+  }
+}
+
+/* ==========================================
+   FOOTER DESKTOP THREE-ZONE ALIGNMENT
+   Desktop only: left brand | centered school | right copyright.
+   Tablet and phone layouts remain unchanged.
+========================================== */
+
+@media (min-width: 981px) {
+  .footer-inner.footer-centered,
+  .footer-centered {
+    grid-template-columns: 1fr auto 1fr;
+    width: 100%;
+    max-width: 1180px;
+  }
+
+  .footer-inner.footer-centered .footer-logo-link,
+  .footer-centered .footer-logo-link {
+    justify-self: start;
+  }
+
+  .footer-inner.footer-centered .footer-logo,
+  .footer-centered .footer-logo {
+    justify-self: start;
+  }
+
+  .footer-inner.footer-centered .footer-center,
+  .footer-centered .footer-center {
+    display: contents;
+  }
+
+  .footer-inner.footer-centered .footer-center > :first-child,
+  .footer-centered .footer-center > :first-child {
+    grid-column: 2;
+    justify-self: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .footer-inner.footer-centered .footer-center > span,
+  .footer-centered .footer-center > span {
+    grid-column: 3;
+    justify-self: end;
+    margin-left: 0;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+/* ==========================================
+   FINAL FOOTER STRUCTURE
+   Desktop: brand left | school centered | copyright right
+   Tablet/phone: stacked and centered
+========================================== */
+
+.footer-three-column {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.footer-school,
+.footer-copyright {
+  color: var(--muted2);
+  font-size: .92rem;
+  line-height: 1.4;
+}
+
+@media (min-width: 981px) {
+  .footer-three-column {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    justify-self: start;
+  }
+
+  .footer-school {
+    justify-self: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .footer-copyright {
+    justify-self: end;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 980px) {
+  .footer-three-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .footer-brand {
+    justify-content: center;
+  }
+
+  .footer-school,
+  .footer-copyright {
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* ==========================================
+   FOOTER EDGE ALIGNMENT — DESKTOP
+   Keeps the center section truly centered,
+   while moving the left and right sections
+   closer to the footer edges.
+========================================== */
+
+@media (min-width: 981px) {
+  .site-footer,
+  footer {
+    padding-left: 3.5%;
+    padding-right: 3.5%;
+  }
+
+  .footer-three-column {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .footer-brand {
+    justify-self: start;
+  }
+
+  .footer-copyright {
+    justify-self: end;
+  }
+}
+
+/* ==========================================
+   DIRECTORY TWO-COLUMN DESKTOP LAYOUT
+   Member list on the left, selected member card on the right.
+   Tablet and phone layouts remain stacked.
+========================================== */
+
+.directory-page {
+  max-width: 1320px;
+}
+
+.directory-layout {
+  display: grid;
+  grid-template-columns: minmax(460px, 1.05fr) minmax(420px, .95fr);
+  gap: 36px;
+  align-items: start;
+}
+
+.directory-list-column,
+.directory-details-column {
+  min-width: 0;
+}
+
+.directory-layout .member-search-box {
+  max-width: none;
+  width: 100%;
+}
+
+.directory-layout .member-details {
+  margin-top: 0;
+}
+
+.directory-details-column {
+  position: sticky;
+  top: 112px;
+}
+
+.directory-layout .member-card {
+  width: 100%;
+  max-width: none;
+}
+
+.member-details-placeholder {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  border: 1px dashed var(--border-strong);
+  background: rgba(245,237,216,.025);
+  color: var(--muted2);
+  text-align: center;
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .directory-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .directory-details-column {
+    position: static;
+  }
+
+  .directory-layout .member-details {
+    margin-top: 0;
+  }
+}
+
+/* ==========================================
+   ALUMNI PHOTOS — DESKTOP NO-SCROLL LAYOUT
+   Uses Cloudinary images only via alumniphotos.js.
+   Desktop fits the gallery and controls within the viewport.
+   Tablet and mobile keep natural scrolling.
+========================================== */
+
+@media (min-width: 981px) {
+  .photos-header {
+    padding-top: 28px;
+    padding-bottom: 18px;
+  }
+
+  .photos-header h1 {
+    margin-bottom: .45rem;
+  }
+
+  .photos-header p {
+    margin-top: .35rem;
+    line-height: 1.45;
+  }
+
+  .photos-main {
+    padding-top: 10px;
+    padding-bottom: 22px;
+  }
+
+  .photos-section {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .photos-section-head {
+    margin-bottom: 10px;
+  }
+
+  .photos-section-head .section-tag {
+    margin-bottom: .35rem;
+  }
+
+  .photos-section-head h2 {
+    margin-bottom: 0;
+    font-size: clamp(1.55rem, 2.4vw, 2.3rem);
+  }
+
+  .photo-carousel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .photo-pair {
+    gap: 22px;
+  }
+
+  .photo-slide-frame {
+    height: clamp(300px, 43vh, 470px);
+  }
+
+  .photo-slide-card h3 {
+    margin-top: 8px;
+    font-size: .98rem;
+    line-height: 1.25;
+  }
+
+  .photo-speed-control {
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+
+  .photo-dots {
+    margin: 8px 0;
+  }
+
+  .photo-carousel-toolbar {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .photo-slide-frame {
+    height: 280px;
+  }
+}
+
+/* ==========================================
+   THINKTANK — REDUCED HEADER/CONTENT GAP
+========================================== */
+
+.thinktank-main {
+  padding-top: 8px;
+}
+
+.thinktank-main > .thinktank-login,
+.thinktank-main > .thinktank-private {
+  padding-top: 18px;
+}
+
+@media (max-width: 768px) {
+  .thinktank-main {
+    padding-top: 4px;
+  }
+
+  .thinktank-main > .thinktank-login,
+  .thinktank-main > .thinktank-private {
+    padding-top: 12px;
+  }
+}

@@ -287,9 +287,11 @@ export async function afterRender() {
   });
 
   document.getElementById("submitPostBtn")?.addEventListener("click", async () => {
+    const submitButton = document.getElementById("submitPostBtn");
     const postMessage = document.getElementById("postMessage");
+    const postBody = document.getElementById("postBody");
     const category = document.getElementById("postCategory").value;
-    const body = document.getElementById("postBody").value.trim();
+    const body = postBody.value.trim();
 
     if (!currentMember) {
       postMessage.textContent = "Πρέπει πρώτα να γίνει είσοδος.";
@@ -301,27 +303,44 @@ export async function afterRender() {
       return;
     }
 
-    postMessage.textContent = "Αποθήκευση...";
+    submitButton.disabled = true;
+    submitButton.textContent = "Γίνεται αξιολόγηση από AI...";
+    postMessage.textContent = "Παρακαλώ περιμένετε μέχρι να ολοκληρωθεί η αξιολόγηση.";
 
     try {
-      await createThinkTankPost({
-        memberId: currentMember.memberId,
+      const result = await createThinkTankPost({
+        memberId: currentMember.id,
         category,
-        body
+        body,
+        imageUrl: null
       });
 
-      document.getElementById("postBody").value = "";
+      postBody.value = "";
 
-      postMessage.textContent =
-        "Η ανάρτηση υποβλήθηκε και αναμένει έγκριση.";
+      const score = Number(result?.verdict?.score ?? 0);
+      const sensitive = result?.verdict?.is_sensitive === true;
 
-      await resetAndLoadPosts();
+      if (score >= 8 && !sensitive) {
+        postMessage.textContent =
+          "Η ανάρτηση εγκρίθηκε από το AI και δημοσιεύτηκε.";
+
+        await resetAndLoadPosts();
+      } else if (score <= 3 || sensitive) {
+        postMessage.textContent =
+          "Η ανάρτηση απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε.";
+      } else {
+        postMessage.textContent =
+          "Η ανάρτηση καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή.";
+      }
 
     } catch (err) {
       console.error("ThinkTank post error:", err);
 
       postMessage.textContent =
         err?.message || "Αποτυχία αποθήκευσης.";
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Υποβολή για έγκριση";
     }
   });
 
@@ -398,7 +417,7 @@ async function loadApprovedPosts(isFirstLoad = false) {
       offset: currentOffset,
       limit: POSTS_PAGE_SIZE,
       category: currentCategoryFilter,
-      memberId: currentOwnOnly && currentMember ? currentMember.memberId : null
+      memberId: currentOwnOnly && currentMember ? currentMember.id : null
     });
 
     if (!posts || posts.length === 0) {
@@ -580,9 +599,19 @@ function attachPostEvents() {
 
       if (!text) return;
 
-      await addComment(postId, text);
+      button.disabled = true;
+      button.textContent = "Αξιολόγηση AI...";
 
-      input.value = "";
+      try {
+        const submitted = await addComment(postId, text);
+
+        if (submitted) {
+          input.value = "";
+        }
+      } finally {
+        button.disabled = false;
+        button.textContent = "Υποβολή σχολίου";
+      }
     });
   });
 }
@@ -593,7 +622,7 @@ async function likePost(postId) {
   try {
     await likeThinkTankPost({
       postId,
-      memberId: currentMember.memberId
+      memberId: currentMember.id
     });
 
     await resetAndLoadPosts();
@@ -605,19 +634,32 @@ async function likePost(postId) {
 }
 
 async function addComment(postId, commentText) {
-  if (!currentMember) return;
+  if (!currentMember) return false;
 
   try {
-    await createThinkTankComment({
+    const result = await createThinkTankComment({
       postId,
-      memberId: currentMember.memberId,
+      memberId: currentMember.id,
       commentText
     });
 
-    alert("Το σχόλιο υποβλήθηκε και αναμένει έγκριση.");
+    const score = Number(result?.verdict?.score ?? 0);
+    const sensitive = result?.verdict?.is_sensitive === true;
+
+    if (score >= 8 && !sensitive) {
+      alert("Το σχόλιο εγκρίθηκε από το AI και δημοσιεύτηκε.");
+      await resetAndLoadPosts();
+    } else if (score <= 3 || sensitive) {
+      alert("Το σχόλιο απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε.");
+    } else {
+      alert("Το σχόλιο καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή.");
+    }
+
+    return true;
 
   } catch (err) {
     console.error("ThinkTank comment error:", err);
-    alert("Αποτυχία αποθήκευσης σχολίου.");
+    alert(err?.message || "Αποτυχία αποθήκευσης σχολίου.");
+    return false;
   }
 }

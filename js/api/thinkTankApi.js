@@ -53,8 +53,8 @@ export async function getThinkTankPosts({
   return result?.data || [];
 }
 
-export async function createThinkTankPost({ memberId, category, body }) {
-  const response = await fetch(`${API_BASE}/api/thinktank/posts`, {
+export async function createThinkTankPost({ memberId, category, body, imageUrl = null }) {
+  const response = await fetch(`${API_BASE}/api/ForumModeration/submit-post`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -62,7 +62,8 @@ export async function createThinkTankPost({ memberId, category, body }) {
     body: JSON.stringify({
       memberId,
       category,
-      body
+      body,
+      imageUrl
     })
   });
 
@@ -76,11 +77,11 @@ export async function createThinkTankPost({ memberId, category, body }) {
     throw new Error(result.error);
   }
 
-  return result?.data || null;
+  return result;
 }
 
 export async function createThinkTankComment({ postId, memberId, commentText }) {
-  const response = await fetch(`${API_BASE}/api/thinktank/comments`, {
+  const response = await fetch(`${API_BASE}/api/ForumModeration/submit-comment`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -102,7 +103,7 @@ export async function createThinkTankComment({ postId, memberId, commentText }) 
     throw new Error(result.error);
   }
 
-  return result?.data || null;
+  return result;
 }
 
 export async function likeThinkTankPost({ postId, memberId }) {
