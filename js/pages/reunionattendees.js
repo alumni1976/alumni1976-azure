@@ -1,5 +1,7 @@
 import { getReunionData } from "../api/reunionApi.js";
 
+import { getText, formatText } from "../services/textService.js";
+
 function escHtml(s) {
   return String(s || "")
     .replace(/&/g, "&amp;")
@@ -20,7 +22,7 @@ function isAttended(value) {
 }
 
 export async function render() {
-  return `
+  return getText("reunionattendees.renderHtml", `
     <div class="profs-header photos-header">
       <div class="profs-eyebrow">REUNION 2026</div>
       <h1>Συμμετέχοντες <em>Reunion</em></h1>
@@ -50,7 +52,7 @@ export async function render() {
 
       </section>
     </main>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -80,8 +82,8 @@ export async function afterRender() {
     );
 
     if (!attended.length) {
-      message.textContent = "Δεν υπάρχουν ακόμη καταχωρήσεις.";
-      if (countEl) countEl.textContent = `0 παρόντες από ${validMembers.length} μέλη`;
+      message.textContent = getText("reunionattendees.noEntries", "Δεν υπάρχουν ακόμη καταχωρήσεις.");
+      if (countEl) countEl.textContent = formatText("reunionattendees.count", { attended: 0, total: validMembers.length }, `0 παρόντες από ${validMembers.length} μέλη`);
       return;
     }
 
@@ -89,7 +91,7 @@ export async function afterRender() {
     grid.classList.remove("hidden");
 
     if (countEl) {
-      countEl.textContent = `${attended.length} παρόντες από ${validMembers.length} μέλη`;
+      countEl.textContent = formatText("reunionattendees.count", { attended: attended.length, total: validMembers.length }, `${attended.length} παρόντες από ${validMembers.length} μέλη`);
     }
 
     grid.innerHTML = attended.map((a, i) => {
@@ -120,6 +122,6 @@ export async function afterRender() {
 
   } catch (err) {
     console.error("Error loading reunion attendees:", err);
-    message.textContent = "Αποτυχία φόρτωσης λίστας.";
+    message.textContent = getText("reunionattendees.loadError", "Αποτυχία φόρτωσης λίστας.");
   }
 }

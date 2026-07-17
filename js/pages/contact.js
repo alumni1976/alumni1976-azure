@@ -1,6 +1,8 @@
 import { getMembers } from "../api/membersApi.js";
 import { createContactForm } from "../api/contactApi.js";
 
+import { getText } from "../services/textService.js";
+
 let selectedMember = null;
 
 function escapeHtml(text = "") {
@@ -43,7 +45,7 @@ function memberPhotoMarkup(member, className = "") {
 }
 
 export async function render() {
-  return `
+  return getText("contact.renderHtml", `
     <section class="contact-page">
       <p class="section-tag">Επικοινωνία</p>
       <h2>Επικοινωνία</h2>
@@ -99,7 +101,7 @@ export async function render() {
         <p id="contactStatusMessage" class="registration-message"></p>
       </form>
     </section>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -140,7 +142,7 @@ export async function afterRender() {
     console.error("Error loading contact members:", err);
 
     statusMessage.textContent =
-      "Αποτυχία φόρτωσης στοιχείων μελών.";
+      getText("contact.membersLoadError", "Αποτυχία φόρτωσης στοιχείων μελών.");
 
     form.classList.add("hidden");
     return;
@@ -160,7 +162,7 @@ export async function afterRender() {
 
     if (!filtered.length) {
       memberOptions.innerHTML =
-        `<div class="event-member-option muted">Δεν βρέθηκε μέλος.</div>`;
+        `<div class="event-member-option muted">${getText("contact.memberNotFound", "Δεν βρέθηκε μέλος.")}</div>`;
       return;
     }
 
@@ -211,7 +213,7 @@ export async function afterRender() {
         </div>
 
         <div class="selected-member-info">
-          <strong>Επιλεγμένος απόφοιτος</strong>
+          <strong>${getText("contact.selectedMember", "Επιλεγμένος απόφοιτος")}</strong>
           <h3>${escapeHtml(displayName(selectedMember))}</h3>
           ${
             selectedMember.email
@@ -228,7 +230,7 @@ export async function afterRender() {
 
     if (!selectedMember) {
       statusMessage.textContent =
-        "Παρακαλώ επιλέξτε απόφοιτο από τη λίστα.";
+        getText("contact.memberRequired", "Παρακαλώ επιλέξτε απόφοιτο από τη λίστα.");
       return;
     }
 
@@ -236,17 +238,17 @@ export async function afterRender() {
     const message = messageInput.value.trim();
 
     if (!subject) {
-      statusMessage.textContent = "Παρακαλώ επιλέξτε θέμα.";
+      statusMessage.textContent = getText("contact.subjectRequired", "Παρακαλώ επιλέξτε θέμα.");
       return;
     }
 
     if (!message) {
-      statusMessage.textContent = "Παρακαλώ γράψτε μήνυμα.";
+      statusMessage.textContent = getText("contact.messageRequired", "Παρακαλώ γράψτε μήνυμα.");
       return;
     }
 
     submitButton.disabled = true;
-    statusMessage.textContent = "Αποθήκευση μηνύματος...";
+    statusMessage.textContent = getText("contact.saving", "Αποθήκευση μηνύματος...");
 
     try {
       await createContactForm({
@@ -265,13 +267,13 @@ export async function afterRender() {
       memberOptions.innerHTML = "";
 
       statusMessage.innerHTML =
-        "✓ Το μήνυμά σας καταχωρήθηκε με επιτυχία.<br>Σας ευχαριστούμε.";
+        getText("contact.successHtml", "✓ Το μήνυμά σας καταχωρήθηκε με επιτυχία.<br>Σας ευχαριστούμε.");
 
     } catch (err) {
       console.error("Error saving contact form:", err);
 
       statusMessage.textContent =
-        err?.message || "Αποτυχία αποθήκευσης μηνύματος.";
+        err?.message || getText("contact.saveError", "Αποτυχία αποθήκευσης μηνύματος.");
 
     } finally {
       submitButton.disabled = false;

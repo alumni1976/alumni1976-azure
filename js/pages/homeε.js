@@ -1,5 +1,6 @@
+import { getText } from "../services/textService.js";
 export async function render() {
-  return `
+  return getText("home_alt.renderHtml", `
     <main class="page home-page">
 
       <section class="hero chronicle-hero">
@@ -248,5 +249,5 @@ export async function render() {
       </section>
 
     </main>
-  `;
+  `);
 }

@@ -1,3 +1,5 @@
+import { getText } from './services/textService.js';
+
 /**
  * Route configuration — maps URL paths to page modules
  * All pages use dynamic import for code splitting
@@ -40,10 +42,25 @@ function getCurrentRoute() {
  */
 function showLoading() {
   const app = document.getElementById('app');
+
+  if (!app) {
+    return;
+  }
+
+  const loadingAriaLabel = getText(
+    'router.loadingAriaLabel',
+    'Φόρτωση σελίδας'
+  );
+
+  const loadingText = getText(
+    'router.loading',
+    'Φόρτωση...'
+  );
+
   app.innerHTML = `
-    <div class="loading" role="status" aria-label="Φόρτωση σελίδας">
+    <div class="loading" role="status" aria-label="${loadingAriaLabel}">
       <div class="loading-spinner"></div>
-      <p>Φόρτωση...</p>
+      <p>${loadingText}</p>
     </div>
   `;
 }
@@ -53,13 +70,33 @@ function showLoading() {
  */
 function showError(message, details = null) {
   const app = document.getElementById('app');
+
+  if (!app) {
+    return;
+  }
+
+  const errorTitle = getText(
+    'router.errorTitle',
+    '⚠️ Σφάλμα'
+  );
+
+  const defaultMessage = getText(
+    'router.pageLoadError',
+    'Αποτυχία φόρτωσης της σελίδας.'
+  );
+
+  const reloadText = getText(
+    'router.reload',
+    'Επαναφόρτωση'
+  );
+
   app.innerHTML = `
     <section class="route-error" role="alert">
-      <h2>⚠️ Σφάλμα</h2>
-      <p>${message || 'Αποτυχία φόρτωσης της σελίδας.'}</p>
+      <h2>${errorTitle}</h2>
+      <p>${message || defaultMessage}</p>
       ${details ? `<pre style="white-space:pre-wrap;color:#ff8080;font-size:0.85rem;max-height:200px;overflow:auto;">${details}</pre>` : ''}
       <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;cursor:pointer;">
-        Επαναφόρτωση
+        ${reloadText}
       </button>
     </section>
   `;
@@ -70,14 +107,35 @@ function showError(message, details = null) {
  */
 function show404() {
   const app = document.getElementById('app');
+
+  if (!app) {
+    return;
+  }
+
+  const notFoundTitle = getText(
+    'router.notFoundTitle',
+    '404'
+  );
+
+  const notFoundMessage = getText(
+    'router.notFoundMessage',
+    'Η σελίδα δεν βρέθηκε.'
+  );
+
+  const homePageText = getText(
+    'router.homePage',
+    'Αρχική Σελίδα'
+  );
+
   app.innerHTML = `
     <section class="route-error">
-      <h2>404</h2>
-      <p>Η σελίδα δεν βρέθηκε.</p>
+      <h2>${notFoundTitle}</h2>
+      <p>${notFoundMessage}</p>
       <a href="#/home" style="display:inline-block;margin-top:16px;padding:8px 20px;background:#1F3A5F;color:#fff;border-radius:4px;text-decoration:none;">
-        Αρχική Σελίδα
+        ${homePageText}
       </a>
-    </section>`;
+    </section>
+  `;
 }
 
 /**
@@ -90,6 +148,11 @@ function show404() {
 export async function loadRoute() {
   const app = document.getElementById('app');
   const path = getCurrentRoute();
+
+  if (!app) {
+    console.error('Router: #app container was not found.');
+    return;
+  }
 
   // Prevent double-loading the same route
   if (path === currentRoute && !location.hash.includes('?')) {
@@ -148,23 +211,31 @@ export async function loadRoute() {
       }
     }
 
-    // Scroll to top on route change (smooth, but only if not already at top)
+    // Scroll to top on route change
     if (window.scrollY > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
   } catch (err) {
     // Check if this error was from an aborted request
-    if (err?.name === 'AbortError' || err?.name === 'DOMException' && err?.code === 20) {
+    if (
+      err?.name === 'AbortError' ||
+      (err?.name === 'DOMException' && err?.code === 20)
+    ) {
       console.log('Route load aborted:', path);
       return;
     }
 
     console.error('ROUTER ERROR:', err);
+
     showError(
-      'Αποτυχία φόρτωσης της σελίδας.',
+      getText(
+        'router.pageLoadError',
+        'Αποτυχία φόρτωσης της σελίδας.'
+      ),
       err.stack || err.message || String(err)
     );
+
     currentRoute = null;
   }
 }
@@ -175,12 +246,11 @@ export async function loadRoute() {
  */
 export function preloadRoute(path) {
   const moduleLoader = routes[path];
+
   if (moduleLoader) {
-    // Use requestIdleCallback to avoid blocking main thread
     if ('requestIdleCallback' in window) {
       requestIdleCallback(() => moduleLoader());
     } else {
-      // Fallback for older browsers
       setTimeout(() => moduleLoader(), 100);
     }
   }

@@ -1,6 +1,8 @@
 import { getReunionData } from "../api/reunionApi.js";
 import { API_BASE } from "../api/apiConfig.js";
 
+import { getText } from "../services/textService.js";
+
 function isTrue(value) {
   return value === true ||
     value === 1 ||
@@ -18,7 +20,7 @@ async function getReunionPhotos() {
 
   if (!response.ok) {
     throw new Error(
-      `Αποτυχία φόρτωσης φωτογραφιών: HTTP ${response.status}`
+      getText("reunion.photoHttpError", "Αποτυχία φόρτωσης φωτογραφιών: HTTP {status}").replace("{status}", String(response.status))
     );
   }
 
@@ -30,7 +32,7 @@ async function getReunionPhotos() {
 
   if (!Array.isArray(result.data)) {
     throw new Error(
-      "Η απάντηση του API φωτογραφιών δεν περιέχει πίνακα data."
+      getText("reunion.invalidPhotoData", "Η απάντηση του API φωτογραφιών δεν περιέχει πίνακα data.")
     );
   }
 
@@ -42,7 +44,7 @@ async function getReunionPhotos() {
 }
 
 export async function render() {
-  return `
+  return getText("reunion.renderHtml", `
     <div class="profs-header photos-header">
       <div class="profs-eyebrow">50 ΧΡΟΝΙΑ ΜΕΤΑ</div>
       <h1>Reunion <em>1976</em></h1>
@@ -113,7 +115,7 @@ export async function render() {
 
       </section>
     </main>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -148,25 +150,25 @@ export async function afterRender() {
     const stats = [
       {
         icon: "💬",
-        label: "Εντυπώσεις",
+        label: getText("reunion.statsGreetings", "Εντυπώσεις"),
         value: greetings.length,
         href: "#/reuniongreetings"
       },
       {
         icon: "🎥",
-        label: "Βίντεο",
+        label: getText("reunion.statsVideos", "Βίντεο"),
         value: videos.length,
         href: "#/reunionvideos"
       },
       {
         icon: "📸",
-        label: "Φωτογραφίες",
+        label: getText("reunion.statsPhotos", "Φωτογραφίες"),
         value: photos.length,
         href: "#/reunionphotos"
       },
       {
         icon: "👥",
-        label: "Παρόντες",
+        label: getText("reunion.statsAttendees", "Παρόντες"),
         value: attendees.length,
         href: "#/reunionattendees"
       }
@@ -191,7 +193,7 @@ export async function afterRender() {
         <span class="rd-stat-icon">⚠️</span>
         <span class="rd-stat-value">!</span>
         <span class="rd-stat-label">
-          Σφάλμα φόρτωσης
+          ${getText("reunion.statsLoadError", "Σφάλμα φόρτωσης")}
         </span>
       </div>
     `;

@@ -1,3 +1,5 @@
+import { getText } from "../services/textService.js";
+
 const SUPABASE_URL = "https://hpnrlshfxxcyujrxegka.supabase.co";
 
 const SUPABASE_KEY =
@@ -13,7 +15,18 @@ function escapeHtml(text = "") {
 }
 
 function initialsFromName(name = "") {
-  const cleanName = String(name).replace(/^Καθηγητής\s+/i, "").trim();
+  const cleanName = String(name)
+    .replace(
+      new RegExp(
+        `^${getText(
+          "alumniprofs.professorFallbackName",
+          "Καθηγητής"
+        )}\\s+`,
+        "i"
+      ),
+      ""
+    )
+    .trim();
 
   const parts = cleanName
     .split(/\s+/)
@@ -23,7 +36,10 @@ function initialsFromName(name = "") {
   return parts
     .map(part => part[0] || "")
     .join("")
-    .toUpperCase() || "Κ";
+    .toUpperCase() || getText(
+      "alumniprofs.initialFallback",
+      "Κ"
+    );
 }
 
 async function fetchProfessorPhotos() {
@@ -41,7 +57,12 @@ async function fetchProfessorPhotos() {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw data || new Error("Failed to load professor photos");
+    throw data || new Error(
+      getText(
+        "alumniprofs.fetchError",
+        "Failed to load professor photos"
+      )
+    );
   }
 
   return data || [];
@@ -51,26 +72,54 @@ export async function render() {
   return `
     <div class="profs-header">
       <div class="profs-header-orb"></div>
+
       <div class="profs-eyebrow">
-        Σχολή Ηλεκτρολόγων Μηχανικών · Πανεπιστήμιο Πατρών
+        ${getText(
+          "alumniprofs.eyebrow",
+          "Σχολή Ηλεκτρολόγων Μηχανικών · Πανεπιστήμιο Πατρών"
+        )}
       </div>
-      <h1>Οι <em>Καθηγητές</em> μας</h1>
+
+      <h1>
+        ${getText("alumniprofs.pageTitleStart", "Οι")}
+        <em>${getText("alumniprofs.pageTitleEmphasis", "Καθηγητές")}</em>
+        ${getText("alumniprofs.pageTitleEnd", "μας")}
+      </h1>
+
       <p>
-        Η ποιότητα των σπουδών μας είναι το αποτέλεσμα της εξαιρετικής καθοδήγησης των καθηγητών μας.
+        ${getText(
+          "alumniprofs.pageDescription",
+          "Η ποιότητα των σπουδών μας είναι το αποτέλεσμα της εξαιρετικής καθοδήγησης των καθηγητών μας."
+        )}
       </p>
     </div>
 
     <main class="profs-main">
       <div id="profsMessage" class="photos-message">
-        Φόρτωση καθηγητών...
+        ${getText(
+          "alumniprofs.loading",
+          "Φόρτωση καθηγητών..."
+        )}
       </div>
 
       <div id="profsContent" class="hidden">
         <div class="prof-section" id="livingProfsSection">
-          <div class="prof-section-label">Εν Ζωή</div>
-          <h2 class="prof-section-title">Οι Δάσκαλοί μας εν ζωή</h2>
+          <div class="prof-section-label">
+            ${getText("alumniprofs.livingLabel", "Εν Ζωή")}
+          </div>
+
+          <h2 class="prof-section-title">
+            ${getText(
+              "alumniprofs.livingTitle",
+              "Οι Δάσκαλοί μας εν ζωή"
+            )}
+          </h2>
+
           <p class="prof-section-subtitle">
-            Με βαθιά εκτίμηση και ευγνωμοσύνη τιμούμε τους καθηγητές που μας καθοδήγησαν.
+            ${getText(
+              "alumniprofs.livingSubtitle",
+              "Με βαθιά εκτίμηση και ευγνωμοσύνη τιμούμε τους καθηγητές που μας καθοδήγησαν."
+            )}
           </p>
 
           <div class="prof-grid" id="livingProfsGrid"></div>
@@ -79,9 +128,23 @@ export async function render() {
         <div class="prof-section-divider" id="profsDivider"></div>
 
         <div class="prof-section" id="memorialProfsSection">
-          <div class="prof-section-label">Μνήμη</div>
-          <h2 class="prof-section-title">Οι Δάσκαλοί μας που έχουν φύγει</h2>
-          <p class="prof-section-subtitle">Πάντα θα σας θυμόμαστε…</p>
+          <div class="prof-section-label">
+            ${getText("alumniprofs.memorialLabel", "Μνήμη")}
+          </div>
+
+          <h2 class="prof-section-title">
+            ${getText(
+              "alumniprofs.memorialTitle",
+              "Οι Δάσκαλοί μας που έχουν φύγει"
+            )}
+          </h2>
+
+          <p class="prof-section-subtitle">
+            ${getText(
+              "alumniprofs.memorialSubtitle",
+              "Πάντα θα σας θυμόμαστε…"
+            )}
+          </p>
 
           <div class="prof-grid" id="memorialProfsGrid"></div>
         </div>
@@ -100,7 +163,10 @@ export async function afterRender() {
   const memorialGrid = document.getElementById("memorialProfsGrid");
 
   if (!SUPABASE_KEY) {
-    message.textContent = "Δεν βρέθηκε Supabase API key.";
+    message.textContent = getText(
+      "alumniprofs.missingApiKey",
+      "Δεν βρέθηκε Supabase API key."
+    );
     return;
   }
 
@@ -108,15 +174,28 @@ export async function afterRender() {
     const profs = await fetchProfessorPhotos();
 
     if (!profs.length) {
-      message.textContent = "Δεν υπάρχουν ακόμη διαθέσιμα στοιχεία καθηγητών.";
+      message.textContent = getText(
+        "alumniprofs.noProfessors",
+        "Δεν υπάρχουν ακόμη διαθέσιμα στοιχεία καθηγητών."
+      );
       return;
     }
 
-    const livingProfs = profs.filter(prof => prof.is_deceased !== true);
-    const memorialProfs = profs.filter(prof => prof.is_deceased === true);
+    const livingProfs = profs.filter(
+      prof => prof.is_deceased !== true
+    );
 
-    livingGrid.innerHTML = livingProfs.map(prof => profCard(prof)).join("");
-    memorialGrid.innerHTML = memorialProfs.map(prof => profCard(prof)).join("");
+    const memorialProfs = profs.filter(
+      prof => prof.is_deceased === true
+    );
+
+    livingGrid.innerHTML = livingProfs
+      .map(prof => profCard(prof))
+      .join("");
+
+    memorialGrid.innerHTML = memorialProfs
+      .map(prof => profCard(prof))
+      .join("");
 
     if (!livingProfs.length) {
       livingSection.classList.add("hidden");
@@ -135,14 +214,29 @@ export async function afterRender() {
 
   } catch (err) {
     console.error(err);
-    message.textContent = "Αποτυχία φόρτωσης στοιχείων καθηγητών.";
+
+    message.textContent = getText(
+      "alumniprofs.loadError",
+      "Αποτυχία φόρτωσης στοιχείων καθηγητών."
+    );
   }
 }
 
 function profCard(prof) {
   const image = String(prof.url_cloud || "").trim();
-  const name = String(prof.name || "Καθηγητής").trim();
-  const years = String(prof.birth_death_years || "").trim();
+
+  const name = String(
+    prof.name ||
+    getText(
+      "alumniprofs.professorFallbackName",
+      "Καθηγητής"
+    )
+  ).trim();
+
+  const years = String(
+    prof.birth_death_years || ""
+  ).trim();
+
   const isDeceased = prof.is_deceased === true;
   const initials = initialsFromName(name);
 

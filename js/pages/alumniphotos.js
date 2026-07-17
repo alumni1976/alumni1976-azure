@@ -1,4 +1,8 @@
 import { getAlumniPhotos } from "../api/alumniPhotosApi.js";
+import {
+  getText,
+  formatText
+} from "../services/textService.js";
 
 const PHOTOS_PER_VIEW = 2;
 const SLIDE_INTERVAL_MS = 5000;
@@ -21,7 +25,16 @@ function escapeHtml(text = "") {
 }
 
 function photoTitle(photo) {
-  return String(photo.title || photo.caption || "Φωτογραφία Alumni 1976").trim() || "Φωτογραφία Alumni 1976";
+  const fallbackTitle = getText(
+    "alumniphotos.photoFallbackTitle",
+    "Φωτογραφία Alumni 1976"
+  );
+
+  return String(
+    photo.title ||
+    photo.caption ||
+    fallbackTitle
+  ).trim() || fallbackTitle;
 }
 
 function photoUrl(photo) {
@@ -31,13 +44,20 @@ function photoUrl(photo) {
 export async function render() {
   return `
     <div class="profs-header photos-header">
-      <div class="profs-eyebrow">PHOTO ARCHIVE</div>
+      <div class="profs-eyebrow">
+        ${getText("alumniphotos.eyebrow", "PHOTO ARCHIVE")}
+      </div>
 
-      <h1>Φωτογραφικό <em>Αρχείο</em></h1>
+      <h1>
+        ${getText("alumniphotos.pageTitleStart", "Φωτογραφικό")}
+        <em>${getText("alumniphotos.pageTitleEmphasis", "Αρχείο")}</em>
+      </h1>
 
       <p>
-        Στιγμές, πρόσωπα και αναμνήσεις από την κοινή πορεία των
-        αποφοίτων Ηλεκτρολόγων Μηχανικών του 1976.
+        ${getText(
+          "alumniphotos.pageDescription",
+          "Στιγμές, πρόσωπα και αναμνήσεις από την κοινή πορεία των αποφοίτων Ηλεκτρολόγων Μηχανικών του 1976."
+        )}
       </p>
     </div>
 
@@ -45,15 +65,26 @@ export async function render() {
       <section class="photos-section">
         <div class="photos-section-head">
           <div>
-            <p class="section-tag">ΑΝΑΜΝΗΣΕΙΣ</p>
-            <h2>Δύο στιγμές κάθε φορά</h2>
+            <p class="section-tag">
+              ${getText("alumniphotos.sectionTag", "ΑΝΑΜΝΗΣΕΙΣ")}
+            </p>
+
+            <h2>
+              ${getText(
+                "alumniphotos.sectionTitle",
+                "Δύο στιγμές κάθε φορά"
+              )}
+            </h2>
           </div>
 
           <div class="photos-count" id="photosCount"></div>
         </div>
 
         <div id="photosMessage" class="photos-message">
-          Φόρτωση φωτογραφιών...
+          ${getText(
+            "alumniphotos.loading",
+            "Φόρτωση φωτογραφιών..."
+          )}
         </div>
 
         <div id="photoCarousel" class="photo-carousel hidden">
@@ -61,8 +92,14 @@ export async function render() {
 
           <div id="photoSpeedControl" class="photo-speed-control">
             <label for="photoSpeedRange">
-              Ταχύτητα εναλλαγής φωτογραφιών:
-              <span id="photoSpeedValue">5</span>&nbsp;δευτερόλεπτα
+              ${getText(
+                "alumniphotos.speedLabel",
+                "Ταχύτητα εναλλαγής φωτογραφιών:"
+              )}
+              <span id="photoSpeedValue">5</span>&nbsp;${getText(
+                "alumniphotos.seconds",
+                "δευτερόλεπτα"
+              )}
             </label>
 
             <input
@@ -79,11 +116,17 @@ export async function render() {
 
           <div class="photo-carousel-toolbar">
             <button id="photoPrev" class="photo-carousel-btn" type="button">
-              ← Προηγούμενες
+              ${getText(
+                "alumniphotos.previousButton",
+                "← Προηγούμενες"
+              )}
             </button>
 
             <button id="photoNext" class="photo-carousel-btn" type="button">
-              Επόμενες →
+              ${getText(
+                "alumniphotos.nextButton",
+                "Επόμενες →"
+              )}
             </button>
           </div>
         </div>
@@ -91,7 +134,14 @@ export async function render() {
     </main>
 
     <div id="photoLightbox" class="photo-lightbox hidden" aria-hidden="true">
-      <button id="photoLightboxClose" class="photo-lightbox-close" aria-label="Close photo">
+      <button
+        id="photoLightboxClose"
+        class="photo-lightbox-close"
+        aria-label="${getText(
+          "alumniphotos.closePhotoAria",
+          "Κλείσιμο φωτογραφίας"
+        )}"
+      >
         ×
       </button>
 
@@ -123,8 +173,18 @@ export async function afterRender() {
       .sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
 
     if (!photos.length) {
-      message.textContent = "Δεν υπάρχουν ακόμη φωτογραφίες.";
-      if (count) count.textContent = "0 φωτογραφίες";
+      message.textContent = getText(
+        "alumniphotos.noPhotos",
+        "Δεν υπάρχουν ακόμη φωτογραφίες."
+      );
+
+      if (count) {
+        count.textContent = `0 ${getText(
+          "alumniphotos.photoPlural",
+          "φωτογραφίες"
+        )}`;
+      }
+
       return;
     }
 
@@ -132,7 +192,11 @@ export async function afterRender() {
     carousel.classList.remove("hidden");
 
     if (count) {
-      count.textContent = `${photos.length} ${photos.length === 1 ? "φωτογραφία" : "φωτογραφίες"}`;
+      const photoWord = photos.length === 1
+        ? getText("alumniphotos.photoSingular", "φωτογραφία")
+        : getText("alumniphotos.photoPlural", "φωτογραφίες");
+
+      count.textContent = `${photos.length} ${photoWord}`;
     }
 
     currentPairIndex = 0;
@@ -143,7 +207,11 @@ export async function afterRender() {
 
   } catch (err) {
     console.error("Error loading alumni photos:", err);
-    message.textContent = "Αποτυχία φόρτωσης φωτογραφιών.";
+
+    message.textContent = getText(
+      "alumniphotos.loadError",
+      "Αποτυχία φόρτωσης φωτογραφιών."
+    );
   }
 }
 
@@ -245,13 +313,18 @@ function renderPhotoPair(immediate = false) {
 
 function renderDots() {
   const dots = document.getElementById("photoDots");
+
   if (!dots) return;
 
   dots.innerHTML = Array.from({ length: totalPairs() }, (_, index) => `
     <button
       class="photo-dot ${index === currentPairIndex ? "active" : ""}"
       type="button"
-      aria-label="Go to photo group ${index + 1}"
+      aria-label="${formatText(
+        "alumniphotos.goToGroupAria",
+        { number: index + 1 },
+        `Μετάβαση στην ομάδα φωτογραφιών ${index + 1}`
+      )}"
       data-index="${index}"
     ></button>
   `).join("");
@@ -408,7 +481,10 @@ function attachPhotoEvents() {
   };
 
   document.onkeydown = event => {
-    if (event.key === "Escape" && !lightbox.classList.contains("hidden")) {
+    if (
+      event.key === "Escape" &&
+      !lightbox.classList.contains("hidden")
+    ) {
       closeLightbox();
     }
   };

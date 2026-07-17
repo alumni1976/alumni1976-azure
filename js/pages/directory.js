@@ -1,5 +1,7 @@
 import { getMembers } from "../api/membersApi.js";
 
+import { getText } from "../services/textService.js";
+
 function escapeHtml(text = "") {
   return String(text)
     .replaceAll("&", "&amp;")
@@ -37,11 +39,11 @@ function isDeceased(member) {
 }
 
 function memorialLabel(member) {
-  return isDeceased(member) ? "✝ Στη μνήμη" : "";
+  return isDeceased(member) ? getText("directory.memorial", "✝ Στη μνήμη") : "";
 }
 
 export async function render() {
-  return `
+  return getText("directory.renderHtml", `
     <section class="directory-page">
       <p class="section-tag">Ευρετήριο</p>
       <h2>Ευρετήριο Αποφοίτων</h2>
@@ -65,7 +67,7 @@ export async function render() {
         </div>
       </div>
     </section>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -83,7 +85,7 @@ export async function afterRender() {
     console.error("Error loading members:", err);
     optionsBox.innerHTML = `
       <div class="photos-message">
-        Αποτυχία φόρτωσης μελών.
+        ${getText("directory.loadError", "Αποτυχία φόρτωσης μελών.")}
       </div>
     `;
     return;
@@ -99,7 +101,7 @@ export async function afterRender() {
     if (!filtered.length) {
       optionsBox.innerHTML = `
         <div class="photos-message">
-          Δεν βρέθηκε μέλος.
+          ${getText("directory.memberNotFound", "Δεν βρέθηκε μέλος.")}
         </div>
       `;
       return;
@@ -114,7 +116,7 @@ export async function afterRender() {
         : "member-option";
 
       const disabledAttr = deceased
-        ? ' aria-disabled="true" title="Στη μνήμη"'
+        ? ' aria-disabled="true" title="${getText("directory.memorialTitle", "Στη μνήμη")}"'
         : "";
 
       return `
@@ -159,19 +161,19 @@ export async function afterRender() {
           <h3>${escapeHtml(displayName(member))}</h3>
 
           <p><strong>Email:</strong> ${escapeHtml(cleanText(member.email))}</p>
-          <p><strong>Τηλέφωνο:</strong> ${escapeHtml(cleanText(member.phone))}</p>
-          <p><strong>Διεύθυνση:</strong> ${escapeHtml(cleanText(member.address))}</p>
+          <p><strong>${getText("directory.phoneLabel", "Τηλέφωνο:")}</strong> ${escapeHtml(cleanText(member.phone))}</p>
+          <p><strong>${getText("directory.addressLabel", "Διεύθυνση:")}</strong> ${escapeHtml(cleanText(member.address))}</p>
 
           <div class="member-actions">
             ${
               cvUrl
-                ? `<a class="btn-primary" href="${escapeHtml(cvUrl)}" target="_blank" rel="noopener">CV</a>`
+                ? `<a class="btn-primary" href="${escapeHtml(cvUrl)}" target="_blank" rel="noopener">${getText("directory.cvButton", "CV")}</a>`
                 : ""
             }
 
             ${
               mediaUrl
-                ? `<a class="btn-primary" href="${escapeHtml(mediaUrl)}" target="_blank" rel="noopener">Media</a>`
+                ? `<a class="btn-primary" href="${escapeHtml(mediaUrl)}" target="_blank" rel="noopener">${getText("directory.mediaButton", "Media")}</a>`
                 : ""
             }
           </div>

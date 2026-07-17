@@ -1,5 +1,6 @@
+import { getText } from "../services/textService.js";
 export async function render() {
-  return `
+  return getText("home.renderHtml", `
     <main class="page home-page">
 
       <section id="event" class="section recap-section">
@@ -250,5 +251,5 @@ export async function render() {
       </section>
 
     </main>
-  `;
+  `);
 }

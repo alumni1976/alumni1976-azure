@@ -1,5 +1,7 @@
 import { getReunionData } from "../api/reunionApi.js";
 
+import { getText, formatText } from "../services/textService.js";
+
 function escHtml(s) {
   return String(s || "")
     .replace(/&/g, "&amp;")
@@ -32,7 +34,7 @@ function videoPoster(videoUrl) {
 }
 
 export async function render() {
-  return `
+  return getText("reunionvideos.renderHtml", `
     <div class="profs-header photos-header">
       <div class="profs-eyebrow">REUNION 2026</div>
       <h1>Βίντεο <em>Ομιλητών</em></h1>
@@ -66,7 +68,7 @@ export async function render() {
         </div>
       </div>
     </div>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -84,7 +86,7 @@ export async function afterRender() {
     );
 
     if (!videos.length) {
-      message.textContent = "Δεν υπάρχουν ακόμη βίντεο.";
+      message.textContent = getText("reunionvideos.noVideos", "Δεν υπάρχουν ακόμη βίντεο.");
       if (countEl) countEl.textContent = "";
       return;
     }
@@ -93,7 +95,7 @@ export async function afterRender() {
     grid.classList.remove("hidden");
 
     if (countEl) {
-      countEl.textContent = `${videos.length} βίντεο`;
+      countEl.textContent = formatText("reunionvideos.count", { count: videos.length }, `${videos.length} βίντεο`);
     }
 
     grid.innerHTML = videos.map(v => {
@@ -135,7 +137,7 @@ export async function afterRender() {
 
           <div class="rv-card-body">
             <h3>${escHtml(name)}</h3>
-            <p>Απόφοιτος Ηλεκτρολόγων Μηχανικών 1976</p>
+            <p>${getText("reunionvideos.role", "Απόφοιτος Ηλεκτρολόγων Μηχανικών 1976")}</p>
           </div>
         </article>
       `;
@@ -145,7 +147,7 @@ export async function afterRender() {
 
   } catch (err) {
     console.error("Error loading reunion videos:", err);
-    message.textContent = "Αποτυχία φόρτωσης βίντεο.";
+    message.textContent = getText("reunionvideos.loadError", "Αποτυχία φόρτωσης βίντεο.");
   }
 }
 

@@ -6,6 +6,11 @@ import {
   likeThinkTankPost
 } from "../api/thinkTankApi.js";
 
+import {
+  getText,
+  formatText
+} from "../services/textService.js";
+
 const POSTS_PAGE_SIZE = 10;
 
 let currentMember = null;
@@ -30,21 +35,25 @@ function properCase(text = "") {
 }
 
 function memberName(member) {
-  if (!member) return "Μέλος";
+  const fallback = getText("thinktank.memberFallback", "Μέλος");
+
+  if (!member) return fallback;
 
   const first = properCase(member.firstName || "");
   const last = properCase(member.lastName || "");
 
-  return `${first} ${last}`.trim() || member.memberName || "Μέλος";
+  return `${first} ${last}`.trim() || member.memberName || fallback;
 }
 
 function memberInitials(member) {
-  if (!member) return "Μ";
+  const fallback = getText("thinktank.memberInitialFallback", "Μ");
+
+  if (!member) return fallback;
 
   const first = member.firstName?.trim()?.[0] || "";
   const last = member.lastName?.trim()?.[0] || "";
 
-  return `${first}${last}`.toUpperCase() || "Μ";
+  return `${first}${last}`.toUpperCase() || fallback;
 }
 
 function memberAvatar(member, avatarClass = "thinktank-avatar-48") {
@@ -116,38 +125,41 @@ export async function render() {
     </style>
 
     <div class="profs-header">
-      <div class="profs-eyebrow">MEMBERS ONLY</div>
+      <div class="profs-eyebrow">${getText("thinktank.membersOnly", "MEMBERS ONLY")}</div>
 
-      <h1>Δεξαμενή <em>Σκέψεων</em></h1>
+      <h1>
+        ${getText("thinktank.pageTitleStart", "Δεξαμενή")}
+        <em>${getText("thinktank.pageTitleEmphasis", "Σκέψεων")}</em>
+      </h1>
 
-      <p>
-        Η σελίδα αυτή είναι διαθέσιμη μόνο σε εξουσιοδοτημένα μέλη
-        των αποφοίτων του 1976.
-      </p>
+      <p>${getText(
+        "thinktank.pageDescription",
+        "Η σελίδα αυτή είναι διαθέσιμη μόνο σε εξουσιοδοτημένα μέλη των αποφοίτων του 1976."
+      )}</p>
     </div>
 
     <main class="thinktank-main">
 
       <section class="thinktank-login" id="thinktankLoginBox">
         <article class="thinktank-card">
-          <div class="section-tag">ΠΡΟΣΒΑΣΗ ΜΕΛΟΥΣ</div>
+          <div class="section-tag">${getText("thinktank.memberAccessTag", "ΠΡΟΣΒΑΣΗ ΜΕΛΟΥΣ")}</div>
 
-          <h2>Είσοδος στη Δεξαμενή Σκέψεων</h2>
+          <h2>${getText("thinktank.loginTitle", "Είσοδος στη Δεξαμενή Σκέψεων")}</h2>
 
-          <p>
-            Πληκτρολογήστε τον προσωπικό κωδικό που σας έχει δοθεί
-            από τον διαχειριστή.
-          </p>
+          <p>${getText(
+            "thinktank.loginDescription",
+            "Πληκτρολογήστε τον προσωπικό κωδικό που σας έχει δοθεί από τον διαχειριστή."
+          )}</p>
 
           <input
             id="thinktankPassword"
             type="password"
             class="thinktank-input"
-            placeholder="Κωδικός πρόσβασης"
+            placeholder="${getText("thinktank.passwordPlaceholder", "Κωδικός πρόσβασης")}"
           >
 
           <button id="thinktankLoginBtn" class="btn-primary thinktank-button">
-            Είσοδος
+            ${getText("thinktank.loginButton", "Είσοδος")}
           </button>
 
           <p id="thinktankLoginMessage" class="thinktank-message"></p>
@@ -157,71 +169,71 @@ export async function render() {
       <section class="thinktank-private hidden" id="thinktankPrivateArea">
 
         <article class="thinktank-card">
-          <div class="section-tag">ΚΑΛΩΣ ΗΡΘΑΤΕ</div>
+          <div class="section-tag">${getText("thinktank.welcomeTag", "ΚΑΛΩΣ ΗΡΘΑΤΕ")}</div>
 
-          <h2 id="thinktankWelcome">Δεξαμενή Σκέψεων</h2>
+          <h2 id="thinktankWelcome">${getText("thinktank.welcomeDefault", "Δεξαμενή Σκέψεων")}</h2>
 
-          <p>
-            Μπορείτε να γράψετε νέα ανάρτηση, να κάνετε σχόλια
-            και να δηλώσετε ότι σας αρέσει μια δημοσίευση.
-          </p>
+          <p>${getText(
+            "thinktank.privateAreaDescription",
+            "Μπορείτε να γράψετε νέα ανάρτηση, να κάνετε σχόλια και να δηλώσετε ότι σας αρέσει μια δημοσίευση."
+          )}</p>
 
           <button id="thinktankLogoutBtn" class="btn-outline">
-            Αποσύνδεση
+            ${getText("thinktank.logoutButton", "Αποσύνδεση")}
           </button>
         </article>
 
         <article class="thinktank-card">
-          <div class="section-tag">ΝΕΑ ΑΝΑΡΤΗΣΗ</div>
+          <div class="section-tag">${getText("thinktank.newPostTag", "ΝΕΑ ΑΝΑΡΤΗΣΗ")}</div>
 
-          <h2>Υποβολή σκέψης</h2>
+          <h2>${getText("thinktank.newPostTitle", "Υποβολή σκέψης")}</h2>
 
           <select id="postCategory" class="thinktank-input">
-            <option value="thought">Σκέψη</option>
-            <option value="memory">Ανάμνηση</option>
-            <option value="news">Νέα μέλους</option>
-            <option value="career">Πανεπιστήμιο & επάγγελμα</option>
+            <option value="thought">${getText("thinktank.categoryThought", "Σκέψη")}</option>
+            <option value="memory">${getText("thinktank.categoryMemory", "Ανάμνηση")}</option>
+            <option value="news">${getText("thinktank.categoryNews", "Νέα μέλους")}</option>
+            <option value="career">${getText("thinktank.categoryCareer", "Πανεπιστήμιο & επάγγελμα")}</option>
           </select>
 
           <textarea
             id="postBody"
             class="thinktank-textarea"
-            placeholder="Γράψτε το κείμενό σας..."
+            placeholder="${getText("thinktank.postPlaceholder", "Γράψτε το κείμενό σας...")}"
           ></textarea>
 
           <button id="submitPostBtn" class="btn-primary thinktank-button">
-            Υποβολή για έγκριση
+            ${getText("thinktank.submitPostButton", "Υποβολή για έγκριση")}
           </button>
 
           <p id="postMessage" class="thinktank-message"></p>
         </article>
 
         <article class="thinktank-card">
-          <div class="section-tag">ΑΝΑΡΤΗΣΕΙΣ</div>
-          <h2>Εγκεκριμένες αναρτήσεις</h2>
+          <div class="section-tag">${getText("thinktank.postsTag", "ΑΝΑΡΤΗΣΕΙΣ")}</div>
+          <h2>${getText("thinktank.approvedPostsTitle", "Εγκεκριμένες αναρτήσεις")}</h2>
 
           <div class="thinktank-filters" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
             <select id="categoryFilter" class="thinktank-input" style="width:auto;">
-              <option value="all">Όλες οι κατηγορίες</option>
-              <option value="thought">Σκέψη</option>
-              <option value="memory">Ανάμνηση</option>
-              <option value="news">Νέα μέλους</option>
-              <option value="career">Πανεπιστήμιο &amp; επάγγελμα</option>
+              <option value="all">${getText("thinktank.allCategories", "Όλες οι κατηγορίες")}</option>
+              <option value="thought">${getText("thinktank.categoryThought", "Σκέψη")}</option>
+              <option value="memory">${getText("thinktank.categoryMemory", "Ανάμνηση")}</option>
+              <option value="news">${getText("thinktank.categoryNews", "Νέα μέλους")}</option>
+              <option value="career">${getText("thinktank.categoryCareer", "Πανεπιστήμιο & επάγγελμα")}</option>
             </select>
 
             <label style="display:flex; align-items:center; gap:6px;">
               <input type="checkbox" id="ownOnlyFilter">
-              Μόνο οι δικές μου αναρτήσεις
+              ${getText("thinktank.ownPostsOnly", "Μόνο οι δικές μου αναρτήσεις")}
             </label>
           </div>
 
           <div id="postsList">
-            <p>Φόρτωση αναρτήσεων...</p>
+            <p>${getText("thinktank.loadingPosts", "Φόρτωση αναρτήσεων...")}</p>
           </div>
 
           <div id="loadMoreWrap" style="margin-top:24px; display:none;">
             <button id="loadMorePostsBtn" class="btn-outline">
-              Φόρτωση παλαιότερων αναρτήσεων
+              ${getText("thinktank.loadOlderPosts", "Φόρτωση παλαιότερων αναρτήσεων")}
             </button>
           </div>
         </article>
@@ -254,17 +266,26 @@ export async function afterRender() {
     const password = passwordInput.value.trim();
 
     if (!password) {
-      loginMessage.textContent = "Παρακαλώ πληκτρολογήστε κωδικό.";
+      loginMessage.textContent = getText(
+        "thinktank.passwordRequired",
+        "Παρακαλώ πληκτρολογήστε κωδικό."
+      );
       return;
     }
 
-    loginMessage.textContent = "Έλεγχος κωδικού...";
+    loginMessage.textContent = getText(
+      "thinktank.checkingPassword",
+      "Έλεγχος κωδικού..."
+    );
 
     try {
       const member = await loginThinkTank(password);
 
       if (!member) {
-        loginMessage.textContent = "Λάθος κωδικός ή μη ενεργό μέλος.";
+        loginMessage.textContent = getText(
+          "thinktank.invalidLogin",
+          "Λάθος κωδικός ή μη ενεργό μέλος."
+        );
         return;
       }
 
@@ -281,8 +302,10 @@ export async function afterRender() {
     } catch (err) {
       console.error("ThinkTank login error:", err);
 
-      loginMessage.textContent =
-        "Λάθος κωδικός ή μη ενεργό μέλος.";
+      loginMessage.textContent = getText(
+        "thinktank.invalidLogin",
+        "Λάθος κωδικός ή μη ενεργό μέλος."
+      );
     }
   });
 
@@ -294,18 +317,31 @@ export async function afterRender() {
     const body = postBody.value.trim();
 
     if (!currentMember) {
-      postMessage.textContent = "Πρέπει πρώτα να γίνει είσοδος.";
+      postMessage.textContent = getText(
+        "thinktank.loginRequired",
+        "Πρέπει πρώτα να γίνει είσοδος."
+      );
       return;
     }
 
     if (!body) {
-      postMessage.textContent = "Η ανάρτηση δεν μπορεί να είναι κενή.";
+      postMessage.textContent = getText(
+        "thinktank.emptyPost",
+        "Η ανάρτηση δεν μπορεί να είναι κενή."
+      );
       return;
     }
 
     submitButton.disabled = true;
-    submitButton.textContent = "Γίνεται αξιολόγηση από AI...";
-    postMessage.textContent = "Παρακαλώ περιμένετε μέχρι να ολοκληρωθεί η αξιολόγηση.";
+    submitButton.textContent = getText(
+      "thinktank.aiEvaluatingPost",
+      "Γίνεται αξιολόγηση από AI..."
+    );
+
+    postMessage.textContent = getText(
+      "thinktank.aiEvaluationWait",
+      "Παρακαλώ περιμένετε μέχρι να ολοκληρωθεί η αξιολόγηση."
+    );
 
     try {
       const result = await createThinkTankPost({
@@ -321,26 +357,36 @@ export async function afterRender() {
       const sensitive = result?.verdict?.is_sensitive === true;
 
       if (score >= 8 && !sensitive) {
-        postMessage.textContent =
-          "Η ανάρτηση εγκρίθηκε από το AI και δημοσιεύτηκε.";
+        postMessage.textContent = getText(
+          "thinktank.postApproved",
+          "Η ανάρτηση εγκρίθηκε από το AI και δημοσιεύτηκε."
+        );
 
         await resetAndLoadPosts();
       } else if (score <= 3 || sensitive) {
-        postMessage.textContent =
-          "Η ανάρτηση απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε.";
+        postMessage.textContent = getText(
+          "thinktank.postRejected",
+          "Η ανάρτηση απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε."
+        );
       } else {
-        postMessage.textContent =
-          "Η ανάρτηση καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή.";
+        postMessage.textContent = getText(
+          "thinktank.postPending",
+          "Η ανάρτηση καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή."
+        );
       }
 
     } catch (err) {
       console.error("ThinkTank post error:", err);
 
       postMessage.textContent =
-        err?.message || "Αποτυχία αποθήκευσης.";
+        err?.message ||
+        getText("thinktank.postSaveError", "Αποτυχία αποθήκευσης.");
     } finally {
       submitButton.disabled = false;
-      submitButton.textContent = "Υποβολή για έγκριση";
+      submitButton.textContent = getText(
+        "thinktank.submitPostButton",
+        "Υποβολή για έγκριση"
+      );
     }
   });
 
@@ -385,7 +431,13 @@ function openPrivateArea() {
   const welcome = document.getElementById("thinktankWelcome");
 
   if (welcome && currentMember) {
-    welcome.textContent = `Καλώς ήρθες, ${currentMember.memberName || memberName(currentMember)}`;
+    welcome.textContent = formatText(
+      "thinktank.welcomeMessage",
+      {
+        name: currentMember.memberName || memberName(currentMember)
+      },
+      `Καλώς ήρθες, ${currentMember.memberName || memberName(currentMember)}`
+    );
   }
 }
 
@@ -409,7 +461,10 @@ async function loadApprovedPosts(isFirstLoad = false) {
   if (!postsList || allPostsLoaded) return;
 
   if (isFirstLoad) {
-    postsList.innerHTML = `<p>Φόρτωση αναρτήσεων...</p>`;
+    postsList.innerHTML = `<p>${getText(
+      "thinktank.loadingPosts",
+      "Φόρτωση αναρτήσεων..."
+    )}</p>`;
   }
 
   try {
@@ -422,7 +477,10 @@ async function loadApprovedPosts(isFirstLoad = false) {
 
     if (!posts || posts.length === 0) {
       if (currentOffset === 0) {
-        postsList.innerHTML = `<p>Δεν υπάρχουν ακόμη εγκεκριμένες αναρτήσεις.</p>`;
+        postsList.innerHTML = `<p>${getText(
+          "thinktank.noApprovedPosts",
+          "Δεν υπάρχουν ακόμη εγκεκριμένες αναρτήσεις."
+        )}</p>`;
       }
 
       allPostsLoaded = true;
@@ -451,17 +509,19 @@ async function loadApprovedPosts(isFirstLoad = false) {
       if (loadMoreWrap) {
         loadMoreWrap.style.display = "none";
       }
-    } else {
-      if (loadMoreWrap) {
-        loadMoreWrap.style.display = "block";
-      }
+    } else if (loadMoreWrap) {
+      loadMoreWrap.style.display = "block";
     }
 
     attachPostEvents();
 
   } catch (err) {
     console.error("ThinkTank posts loading error:", err);
-    postsList.innerHTML = `<p>Αποτυχία φόρτωσης αναρτήσεων.</p>`;
+
+    postsList.innerHTML = `<p>${getText(
+      "thinktank.postsLoadError",
+      "Αποτυχία φόρτωσης αναρτήσεων."
+    )}</p>`;
   }
 }
 
@@ -489,16 +549,24 @@ function renderPost(post) {
       <div class="thinktank-post-body collapsed">
         <p class="thinktank-post-text">${escapeHtml(post.body)}</p>
         <button class="thinktank-toggle-text" type="button" data-state="collapsed">
-          περισσότερα...
+          ${getText("thinktank.more", "περισσότερα...")}
         </button>
       </div>
 
       <div class="post-actions">
         <button class="thinktank-action like-btn" data-post-id="${post.id}">
-          ❤️ Μου αρέσει (${likesCount})
+          ${formatText(
+            "thinktank.likeButton",
+            { count: likesCount },
+            `❤️ Μου αρέσει (${likesCount})`
+          )}
         </button>
 
-        <span>💬 Σχόλια (${comments.length})</span>
+        <span>${formatText(
+          "thinktank.commentsCount",
+          { count: comments.length },
+          `💬 Σχόλια (${comments.length})`
+        )}</span>
       </div>
 
       <div class="thinktank-comments">
@@ -530,11 +598,11 @@ function renderPost(post) {
         <input
           class="thinktank-input comment-input"
           data-post-id="${post.id}"
-          placeholder="Γράψτε σχόλιο..."
+          placeholder="${getText("thinktank.commentPlaceholder", "Γράψτε σχόλιο...")}"
         >
 
         <button class="btn-outline comment-btn" data-post-id="${post.id}">
-          Υποβολή σχολίου
+          ${getText("thinktank.submitCommentButton", "Υποβολή σχολίου")}
         </button>
       </div>
     </article>
@@ -565,8 +633,8 @@ function attachPostEvents() {
       wrap.classList.toggle("collapsed", !expanded);
 
       button.textContent = expanded
-        ? "λιγότερα..."
-        : "περισσότερα...";
+        ? getText("thinktank.less", "λιγότερα...")
+        : getText("thinktank.more", "περισσότερα...");
     });
   });
 
@@ -600,7 +668,10 @@ function attachPostEvents() {
       if (!text) return;
 
       button.disabled = true;
-      button.textContent = "Αξιολόγηση AI...";
+      button.textContent = getText(
+        "thinktank.aiEvaluatingComment",
+        "Αξιολόγηση AI..."
+      );
 
       try {
         const submitted = await addComment(postId, text);
@@ -610,7 +681,10 @@ function attachPostEvents() {
         }
       } finally {
         button.disabled = false;
-        button.textContent = "Υποβολή σχολίου";
+        button.textContent = getText(
+          "thinktank.submitCommentButton",
+          "Υποβολή σχολίου"
+        );
       }
     });
   });
@@ -629,7 +703,11 @@ async function likePost(postId) {
 
   } catch (err) {
     console.error("ThinkTank like error:", err);
-    alert("Έχετε ήδη δηλώσει ότι σας αρέσει αυτή η ανάρτηση.");
+
+    alert(getText(
+      "thinktank.alreadyLiked",
+      "Έχετε ήδη δηλώσει ότι σας αρέσει αυτή η ανάρτηση."
+    ));
   }
 }
 
@@ -647,19 +725,37 @@ async function addComment(postId, commentText) {
     const sensitive = result?.verdict?.is_sensitive === true;
 
     if (score >= 8 && !sensitive) {
-      alert("Το σχόλιο εγκρίθηκε από το AI και δημοσιεύτηκε.");
+      alert(getText(
+        "thinktank.commentApproved",
+        "Το σχόλιο εγκρίθηκε από το AI και δημοσιεύτηκε."
+      ));
+
       await resetAndLoadPosts();
     } else if (score <= 3 || sensitive) {
-      alert("Το σχόλιο απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε.");
+      alert(getText(
+        "thinktank.commentRejected",
+        "Το σχόλιο απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε."
+      ));
     } else {
-      alert("Το σχόλιο καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή.");
+      alert(getText(
+        "thinktank.commentPending",
+        "Το σχόλιο καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή."
+      ));
     }
 
     return true;
 
   } catch (err) {
     console.error("ThinkTank comment error:", err);
-    alert(err?.message || "Αποτυχία αποθήκευσης σχολίου.");
+
+    alert(
+      err?.message ||
+      getText(
+        "thinktank.commentSaveError",
+        "Αποτυχία αποθήκευσης σχολίου."
+      )
+    );
+
     return false;
   }
 }

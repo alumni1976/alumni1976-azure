@@ -1,5 +1,7 @@
 import { API_BASE } from "../api/apiConfig.js";
 
+import { getText, formatText } from "../services/textService.js";
+
 let photos = [];
 let currentIndex = 0;
 let keyHandler = null;
@@ -14,7 +16,7 @@ function escapeHtml(value = "") {
 }
 
 export async function render() {
-  return `
+  return getText("reunionphotos.renderHtml", `
     <section class="reunion-photos-page">
       <header class="reunion-photos-header">
         <div class="reunion-eyebrow">REUNION 2026</div>
@@ -44,7 +46,7 @@ export async function render() {
 
       <button id="reunionNext" class="reunion-nav reunion-next" type="button" aria-label="Επόμενη">›</button>
     </div>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -70,7 +72,7 @@ export async function afterRender() {
     }
 
     if (!Array.isArray(result.data)) {
-      throw new Error("Η απάντηση του API δεν περιέχει πίνακα data.");
+      throw new Error(getText("reunionphotos.invalidApiData", "Η απάντηση του API δεν περιέχει πίνακα data."));
     }
 
     photos = result.data.filter(photo =>
@@ -80,23 +82,33 @@ export async function afterRender() {
     );
 
     if (!photos.length) {
-      message.textContent = "Δεν υπάρχουν διαθέσιμες φωτογραφίες.";
+      message.textContent = getText("reunionphotos.noPhotos", "Δεν υπάρχουν διαθέσιμες φωτογραφίες.");
       return;
     }
 
-    message.textContent =
-      `${photos.length} ${photos.length === 1 ? "φωτογραφία" : "φωτογραφίες"} · ` +
-      `Βάση: ${result.databaseName || "άγνωστη"}`;
+    const photoWord = photos.length === 1
+      ? getText("reunionphotos.photoSingular", "φωτογραφία")
+      : getText("reunionphotos.photoPlural", "φωτογραφίες");
+
+    message.textContent = formatText(
+      "reunionphotos.count",
+      {
+        count: photos.length,
+        photoWord,
+        database: result.databaseName || getText("reunionphotos.unknownDatabase", "άγνωστη")
+      },
+      `${photos.length} ${photoWord} · Βάση: ${result.databaseName || "άγνωστη"}`
+    );
 
     grid.innerHTML = photos.map((photo, index) => {
       const title = String(photo.title || "").trim();
       const caption = String(photo.caption || "").trim();
-      const alt = title || caption || `Φωτογραφία Reunion ${index + 1}`;
+      const alt = title || caption || formatText("reunionphotos.fallbackAlt", { number: index + 1 }, `Φωτογραφία Reunion ${index + 1}`);
 
       return `
         <article class="reunion-photo-card">
           <button class="reunion-photo-button" type="button"
-                  data-index="${index}" aria-label="Μεγέθυνση: ${escapeHtml(alt)}">
+                  data-index="${index}" aria-label="${escapeHtml(formatText("reunionphotos.enlargeAria", { alt }, `Μεγέθυνση: ${alt}`))}">
             <img src="${escapeHtml(photo.cloudUrl)}"
                  alt="${escapeHtml(alt)}"
                  loading="lazy"
@@ -115,7 +127,7 @@ export async function afterRender() {
   } catch (error) {
     console.error("Reunion photos error:", error);
     message.innerHTML = `
-      <strong>Δεν ήταν δυνατή η φόρτωση των φωτογραφιών.</strong><br>
+      <strong>${getText("reunionphotos.loadErrorHtml", "Δεν ήταν δυνατή η φόρτωση των φωτογραφιών.")}</strong><br>
       <span>${escapeHtml(error.message || error)}</span>
     `;
   }
@@ -185,7 +197,7 @@ function showCurrentPhoto() {
   const text = document.getElementById("reunionLightboxCaption");
 
   image.src = photo.cloudUrl;
-  image.alt = title || caption || `Φωτογραφία Reunion ${currentIndex + 1}`;
+  image.alt = title || caption || formatText("reunionphotos.fallbackAlt", { number: currentIndex + 1 }, `Φωτογραφία Reunion ${currentIndex + 1}`);
 
   text.innerHTML = `
     ${title ? `<strong>${escapeHtml(title)}</strong>` : ""}

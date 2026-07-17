@@ -1,4 +1,5 @@
 import { getAlumniEvents } from "../api/eventsApi.js";
+import { getText } from "../services/textService.js";
 
 function escapeHtml(text = "") {
   return String(text)
@@ -70,16 +71,25 @@ function isTrue(value) {
 export async function render() {
   return `
     <section class="events-page">
-      <p class="section-tag">Εκδηλώσεις</p>
-      <h2>Εκδηλώσεις Αποφοίτων</h2>
+      <p class="section-tag">
+        ${getText("alumnievents.sectionTag", "Εκδηλώσεις")}
+      </p>
+
+      <h2>
+        ${getText("alumnievents.pageTitle", "Εκδηλώσεις Αποφοίτων")}
+      </h2>
 
       <p class="events-intro">
-        Συναντήσεις, επετειακές εκδηλώσεις και στιγμές που συνεχίζουν
-        την κοινή μας πορεία πενήντα χρόνια μετά.
+        ${getText(
+          "alumnievents.intro",
+          "Συναντήσεις, επετειακές εκδηλώσεις και στιγμές που συνεχίζουν την κοινή μας πορεία πενήντα χρόνια μετά."
+        )}
       </p>
 
       <div id="eventsList" class="events-list">
-        <p>Φόρτωση εκδηλώσεων...</p>
+        <p>
+          ${getText("alumnievents.loading", "Φόρτωση εκδηλώσεων...")}
+        </p>
       </div>
     </section>
   `;
@@ -103,20 +113,33 @@ export async function afterRender() {
           return aSort - bSort;
         }
 
-        return String(a.eventDate || "").localeCompare(String(b.eventDate || ""));
+        return String(a.eventDate || "").localeCompare(
+          String(b.eventDate || "")
+        );
       });
 
     if (!events.length) {
       eventsList.innerHTML = `
         <article class="event-card">
-          <h3>Δεν υπάρχουν προσεχείς εκδηλώσεις αυτή τη στιγμή.</h3>
+          <h3>
+            ${getText(
+              "alumnievents.noEventsTitle",
+              "Δεν υπάρχουν προσεχείς εκδηλώσεις αυτή τη στιγμή."
+            )}
+          </h3>
+
           <p>
-            Το Reunion 50 Ετών πραγματοποιήθηκε με μεγάλη επιτυχία στις
-            20 Ιουνίου 2026. Δείτε το αναμνηστικό άρθρο στην
-            <a href="#/home">αρχική σελίδα</a>.
+            ${getText(
+              "alumnievents.noEventsMessageStart",
+              "Το Reunion 50 Ετών πραγματοποιήθηκε με μεγάλη επιτυχία στις 20 Ιουνίου 2026. Δείτε το αναμνηστικό άρθρο στην"
+            )}
+            <a href="#/home">
+              ${getText("alumnievents.homePageLink", "αρχική σελίδα")}
+            </a>.
           </p>
         </article>
       `;
+
       return;
     }
 
@@ -131,7 +154,10 @@ export async function afterRender() {
             image
               ? `
                 <div class="event-image-wrap">
-                  <img src="${escapeHtml(image)}" alt="${escapeHtml(event.title)}">
+                  <img
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(event.title)}"
+                  >
                 </div>
               `
               : ""
@@ -155,8 +181,14 @@ export async function afterRender() {
               ${escapeHtml(event.description || "")}
             </p>
 
-            <a class="btn-primary event-register-btn" href="#/eventregistration?id=${escapeHtml(event.id)}">
-              Δήλωση Συμμετοχής
+            <a
+              class="btn-primary event-register-btn"
+              href="#/eventregistration?id=${escapeHtml(event.id)}"
+            >
+              ${getText(
+                "alumnievents.registerButton",
+                "Δήλωση Συμμετοχής"
+              )}
             </a>
           </div>
         </article>
@@ -168,8 +200,19 @@ export async function afterRender() {
 
     eventsList.innerHTML = `
       <article class="event-card">
-        <h3>Αποτυχία φόρτωσης εκδηλώσεων.</h3>
-        <p>Παρακαλώ δοκιμάστε ξανά αργότερα.</p>
+        <h3>
+          ${getText(
+            "alumnievents.loadErrorTitle",
+            "Αποτυχία φόρτωσης εκδηλώσεων."
+          )}
+        </h3>
+
+        <p>
+          ${getText(
+            "alumnievents.loadErrorMessage",
+            "Παρακαλώ δοκιμάστε ξανά αργότερα."
+          )}
+        </p>
       </article>
     `;
   }

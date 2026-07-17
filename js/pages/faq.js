@@ -1,5 +1,6 @@
+import { getText } from "../services/textService.js";
 export async function render() {
-  return `
+  return getText("faq.renderHtml", `
     <section class="faq-page">
       <p class="section-tag">ALUMNI 1976</p>
       <h2>ΣΥΧΝΕΣ ΕΡΩΤΗΣΕΙΣ</h2>
@@ -170,5 +171,5 @@ export async function render() {
         διαχείρισης στο <strong>alumni1976@gmail.com</strong>.
       </div>
     </section>
-  `;
+  `);
 }

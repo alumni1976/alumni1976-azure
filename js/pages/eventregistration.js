@@ -2,6 +2,8 @@ import { getMembers } from "../api/membersApi.js";
 import { getAlumniEvents } from "../api/eventsApi.js";
 import { createEventForm } from "../api/eventFormsApi.js";
 
+import { getText } from "../services/textService.js";
+
 let selectedMember = null;
 let currentEvent = null;
 
@@ -104,7 +106,7 @@ function findEventById(events, eventId) {
 }
 
 export async function render() {
-  return `
+  return getText("eventregistration.renderHtml", `
     <section class="event-registration-page">
       <p class="section-tag">Δήλωση Συμμετοχής</p>
       <h2>Δήλωση Συμμετοχής</h2>
@@ -163,7 +165,7 @@ export async function render() {
         <p id="registrationMessage" class="registration-message"></p>
       </form>
     </section>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -209,7 +211,7 @@ export async function afterRender() {
     currentEvent = findEventById(events, eventId);
 
     if (!currentEvent) {
-      eventSummary.innerHTML = `<p>Η εκδήλωση δεν βρέθηκε.</p>`;
+      eventSummary.innerHTML = `<p>${getText("eventregistration.eventNotFound", "Η εκδήλωση δεν βρέθηκε.")}</p>`;
       form.classList.add("hidden");
       return;
     }
@@ -217,9 +219,9 @@ export async function afterRender() {
     eventSummary.innerHTML = `
       <article class="registration-summary-card">
         <h3>${escapeHtml(currentEvent.title)}</h3>
-        <p><strong>Ημερομηνία:</strong> ${escapeHtml(formatGreekDate(currentEvent.eventDate))}</p>
-        <p><strong>Ώρα:</strong> ${escapeHtml(formatGreekTime(currentEvent.eventTime))}</p>
-        <p><strong>Τοποθεσία:</strong> ${escapeHtml(currentEvent.location || "-")}</p>
+        <p><strong>${getText("eventregistration.dateLabel", "Ημερομηνία:")}</strong> ${escapeHtml(formatGreekDate(currentEvent.eventDate))}</p>
+        <p><strong>${getText("eventregistration.timeLabel", "Ώρα:")}</strong> ${escapeHtml(formatGreekTime(currentEvent.eventTime))}</p>
+        <p><strong>${getText("eventregistration.locationLabel", "Τοποθεσία:")}</strong> ${escapeHtml(currentEvent.location || "-")}</p>
       </article>
     `;
 
@@ -230,7 +232,7 @@ export async function afterRender() {
   } catch (err) {
     console.error("Error loading event registration data:", err);
 
-    eventSummary.innerHTML = `<p>Αποτυχία φόρτωσης στοιχείων.</p>`;
+    eventSummary.innerHTML = `<p>${getText("eventregistration.loadError", "Αποτυχία φόρτωσης στοιχείων.")}</p>`;
     form.classList.add("hidden");
     return;
   }
@@ -249,7 +251,7 @@ export async function afterRender() {
 
     if (!filtered.length) {
       memberOptions.innerHTML =
-        `<div class="event-member-option muted">Δεν βρέθηκε μέλος.</div>`;
+        `<div class="event-member-option muted">${getText("eventregistration.memberNotFound", "Δεν βρέθηκε μέλος.")}</div>`;
       return;
     }
 
@@ -300,7 +302,7 @@ export async function afterRender() {
         </div>
 
         <div class="selected-member-info">
-          <strong>Επιλεγμένος απόφοιτος</strong>
+          <strong>${getText("eventregistration.selectedMember", "Επιλεγμένος απόφοιτος")}</strong>
           <h3>${escapeHtml(displayName(selectedMember))}</h3>
           ${
             selectedMember.email
@@ -317,18 +319,18 @@ export async function afterRender() {
 
     if (!selectedMember) {
       registrationMessage.textContent =
-        "Παρακαλώ επιλέξτε απόφοιτο από τη λίστα.";
+        getText("eventregistration.memberRequired", "Παρακαλώ επιλέξτε απόφοιτο από τη λίστα.");
       return;
     }
 
     if (!currentEvent) {
       registrationMessage.textContent =
-        "Δεν έχει επιλεγεί έγκυρη εκδήλωση.";
+        getText("eventregistration.invalidEvent", "Δεν έχει επιλεγεί έγκυρη εκδήλωση.");
       return;
     }
 
     submitButton.disabled = true;
-    registrationMessage.textContent = "Αποθήκευση δήλωσης...";
+    registrationMessage.textContent = getText("eventregistration.saving", "Αποθήκευση δήλωσης...");
 
     const payload = {
       eventId: Number(currentEvent.id),
@@ -351,7 +353,7 @@ export async function afterRender() {
       memberOptions.innerHTML = "";
 
       registrationMessage.innerHTML =
-        "✓ Η δήλωση συμμετοχής σας καταχωρήθηκε με επιτυχία.<br>Σας ευχαριστούμε.";
+        getText("eventregistration.successHtml", "✓ Η δήλωση συμμετοχής σας καταχωρήθηκε με επιτυχία.<br>Σας ευχαριστούμε.");
 
     } catch (err) {
       console.error("Error saving event registration:", err);
@@ -366,12 +368,12 @@ export async function afterRender() {
 
       if (errorText.includes("duplicate")) {
         registrationMessage.textContent =
-          "Υπάρχει ήδη δήλωση συμμετοχής για τον συγκεκριμένο απόφοιτο.";
+          getText("eventregistration.duplicate", "Υπάρχει ήδη δήλωση συμμετοχής για τον συγκεκριμένο απόφοιτο.");
         return;
       }
 
       registrationMessage.textContent =
-        "Αποτυχία αποθήκευσης δήλωσης.";
+        getText("eventregistration.saveError", "Αποτυχία αποθήκευσης δήλωσης.");
 
     } finally {
       submitButton.disabled = false;

@@ -1,5 +1,7 @@
 import { getReunionData } from "../api/reunionApi.js";
 
+import { getText, formatText } from "../services/textService.js";
+
 function escHtml(s) {
   return String(s || "")
     .replace(/&/g, "&amp;")
@@ -38,7 +40,7 @@ function renderCard(g, i) {
 
         <div class="rg-card-meta">
           <strong class="rg-name">${escHtml(name)}</strong>
-          <span class="rg-role">Απόφοιτος Ηλεκτρολόγων Μηχανικών 1976</span>
+          <span class="rg-role">${getText("reuniongreetings.role", "Απόφοιτος Ηλεκτρολόγων Μηχανικών 1976")}</span>
         </div>
       </div>
 
@@ -50,7 +52,7 @@ function renderCard(g, i) {
 }
 
 export async function render() {
-  return `
+  return getText("reuniongreetings.renderHtml", `
     <div class="profs-header photos-header">
       <div class="profs-eyebrow">REUNION 2026</div>
 
@@ -80,7 +82,7 @@ export async function render() {
         <div id="rgWall" class="rg-wall"></div>
       </section>
     </main>
-  `;
+  `);
 }
 
 export async function afterRender() {
@@ -98,7 +100,7 @@ export async function afterRender() {
     );
 
     if (!greetings.length) {
-      message.textContent = "Δεν υπάρχουν ακόμη μηνύματα.";
+      message.textContent = getText("reuniongreetings.noMessages", "Δεν υπάρχουν ακόμη μηνύματα.");
       if (countEl) countEl.textContent = "";
       return;
     }
@@ -106,7 +108,7 @@ export async function afterRender() {
     message.textContent = "";
 
     if (countEl) {
-      countEl.textContent = `${greetings.length} μηνύματα`;
+      countEl.textContent = formatText("reuniongreetings.count", { count: greetings.length }, `${greetings.length} μηνύματα`);
     }
 
     wall.innerHTML = greetings
@@ -115,6 +117,6 @@ export async function afterRender() {
 
   } catch (err) {
     console.error("Error loading reunion greetings:", err);
-    message.textContent = "Αποτυχία φόρτωσης μηνυμάτων.";
+    message.textContent = getText("reuniongreetings.loadError", "Αποτυχία φόρτωσης μηνυμάτων.");
   }
 }

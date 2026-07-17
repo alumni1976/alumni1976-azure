@@ -1,4 +1,5 @@
 import { getMembers } from "../api/membersApi.js";
+import { getText } from "../services/textService.js";
 
 function escapeHtml(text = "") {
   return String(text)
@@ -24,23 +25,42 @@ function linkValue(primary, cloud) {
 function buildLinks(member) {
   const links = [];
 
-  const cvLink = linkValue(member.cvLink, member.cvLinkClord);
-  const mediaLink = linkValue(member.mediaLink, member.mediaLinkClord);
+  const cvLink = linkValue(
+    member.cvLink,
+    member.cvLinkClord
+  );
+
+  const mediaLink = linkValue(
+    member.mediaLink,
+    member.mediaLinkClord
+  );
 
   if (cvLink) {
-    const qs = new URLSearchParams({ cv: cvLink });
+    const qs = new URLSearchParams({
+      cv: cvLink
+    });
 
     links.push(`
-      <a class="community-link-btn" href="cv-viewer.html?${qs.toString()}" target="_blank" rel="noopener">
-        CV
+      <a
+        class="community-link-btn"
+        href="cv-viewer.html?${qs.toString()}"
+        target="_blank"
+        rel="noopener"
+      >
+        ${getText("community.cvButton", "CV")}
       </a>
     `);
   }
 
   if (mediaLink) {
     links.push(`
-      <a class="community-link-btn" href="${escapeHtml(mediaLink)}" target="_blank" rel="noopener">
-        Media
+      <a
+        class="community-link-btn"
+        href="${escapeHtml(mediaLink)}"
+        target="_blank"
+        rel="noopener"
+      >
+        ${getText("community.mediaButton", "Media")}
       </a>
     `);
   }
@@ -52,8 +72,13 @@ function buildLinks(member) {
     });
 
     links.push(`
-      <a class="community-link-btn community-link-btn-featured" href="cv-viewer.html?${qs.toString()}" target="_blank" rel="noopener">
-        CV &amp; Media
+      <a
+        class="community-link-btn community-link-btn-featured"
+        href="cv-viewer.html?${qs.toString()}"
+        target="_blank"
+        rel="noopener"
+      >
+        ${getText("community.cvMediaButton", "CV & Media")}
       </a>
     `);
   }
@@ -62,7 +87,9 @@ function buildLinks(member) {
 }
 
 function isDeceased(member) {
-  return String(member.status || "active").trim().toLowerCase() === "deceased";
+  return String(
+    member.status || "active"
+  ).trim().toLowerCase() === "deceased";
 }
 
 function resolvePhotoSrc(member) {
@@ -78,19 +105,32 @@ function displayName(member) {
 export async function render() {
   return `
     <div class="community-header">
-      <div class="community-eyebrow">ΑΠΟΦΟΙΤΟΙ 1976</div>
+      <div class="community-eyebrow">
+        ${getText("community.eyebrow", "ΑΠΟΦΟΙΤΟΙ 1976")}
+      </div>
 
-      <h1>Η <em>Κοινότητά</em> μας</h1>
+      <h1>
+        ${getText("community.pageTitleStart", "Η")}
+        <em>${getText("community.pageTitleEmphasis", "Κοινότητά")}</em>
+        ${getText("community.pageTitleEnd", "μας")}
+      </h1>
 
       <p>
-        Πρόσωπα, διαδρομές και αναμνήσεις από την κοινή πορεία
-        των αποφοίτων της Σχολής Ηλεκτρολόγων Μηχανικών.
+        ${getText(
+          "community.pageDescription",
+          "Πρόσωπα, διαδρομές και αναμνήσεις από την κοινή πορεία των αποφοίτων της Σχολής Ηλεκτρολόγων Μηχανικών."
+        )}
       </p>
     </div>
 
     <main class="community-main">
       <div id="communityGrid" class="community-grid">
-        <div class="community-loading">Φόρτωση μελών...</div>
+        <div class="community-loading">
+          ${getText(
+            "community.loading",
+            "Φόρτωση μελών..."
+          )}
+        </div>
       </div>
     </main>
   `;
@@ -115,9 +155,13 @@ export async function afterRender() {
     if (!visibleMembers.length) {
       grid.innerHTML = `
         <div class="community-empty">
-          Δεν βρέθηκαν μέλη για εμφάνιση.
+          ${getText(
+            "community.noMembers",
+            "Δεν βρέθηκαν μέλη για εμφάνιση."
+          )}
         </div>
       `;
+
       return;
     }
 
@@ -128,12 +172,17 @@ export async function afterRender() {
       const deceased = isDeceased(member);
 
       const footerContent = deceased
-        ? `<div class="community-memorial">✝ Στη μνήμη</div>`
+        ? `<div class="community-memorial">${getText(
+            "community.memorial",
+            "✝ Στη μνήμη"
+          )}</div>`
         : links;
 
       return `
         <article class="community-card${deceased ? " community-card-deceased" : ""}">
-          <h3 class="community-name">${escapeHtml(fullName)}</h3>
+          <h3 class="community-name">
+            ${escapeHtml(fullName)}
+          </h3>
 
           <div class="community-photo-frame">
             ${
@@ -147,7 +196,12 @@ export async function afterRender() {
                   >
                 `
                 : `
-                  <div class="community-photo-placeholder">Χωρίς φωτογραφία</div>
+                  <div class="community-photo-placeholder">
+                    ${getText(
+                      "community.noPhoto",
+                      "Χωρίς φωτογραφία"
+                    )}
+                  </div>
                 `
             }
           </div>
@@ -166,11 +220,17 @@ export async function afterRender() {
     }).join("");
 
   } catch (err) {
-    console.error("Error loading community members:", err);
+    console.error(
+      "Error loading community members:",
+      err
+    );
 
     grid.innerHTML = `
       <div class="community-empty">
-        Αποτυχία φόρτωσης μελών.
+        ${getText(
+          "community.loadError",
+          "Αποτυχία φόρτωσης μελών."
+        )}
       </div>
     `;
   }

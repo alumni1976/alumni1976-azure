@@ -1,4 +1,5 @@
 import { loadRoute } from './router.js';
+import { loadTexts } from './services/textService.js';
 
 /**
  * Configuration
@@ -241,6 +242,9 @@ window.addEventListener('hashchange', async () => {
 
 // DOM ready
 window.addEventListener('DOMContentLoaded', async () => {
+  // Load user-facing texts
+  await loadTexts();
+
   // Initialize menu repository
   const initialized = initializeMenuRepository();
 
