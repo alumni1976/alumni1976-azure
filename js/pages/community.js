@@ -167,6 +167,12 @@ export async function afterRender() {
 
     grid.innerHTML = visibleMembers.map(member => {
       const fullName = displayName(member);
+      const nameLengthClass =
+        fullName.length > 24
+          ? " community-name-long"
+          : fullName.length > 18
+            ? " community-name-medium"
+            : "";
       const photoSrc = resolvePhotoSrc(member);
       const links = buildLinks(member);
       const deceased = isDeceased(member);
@@ -180,10 +186,6 @@ export async function afterRender() {
 
       return `
         <article class="community-card${deceased ? " community-card-deceased" : ""}">
-          <h3 class="community-name">
-            ${escapeHtml(fullName)}
-          </h3>
-
           <div class="community-photo-frame">
             ${
               photoSrc
@@ -204,17 +206,27 @@ export async function afterRender() {
                   </div>
                 `
             }
+
+            <div class="community-photo-shade"></div>
           </div>
 
-          ${
-            footerContent
-              ? `
-                <div class="community-links${deceased ? " community-links-memorial" : ""}">
-                  ${footerContent}
-                </div>
-              `
-              : ""
-          }
+          <div class="community-card-content">
+            <div class="community-card-heading">
+              <h3 class="community-name${nameLengthClass}">
+                ${escapeHtml(fullName)}
+              </h3>
+            </div>
+
+            ${
+              footerContent
+                ? `
+                  <div class="community-links${deceased ? " community-links-memorial" : ""}">
+                    ${footerContent}
+                  </div>
+                `
+                : ""
+            }
+          </div>
         </article>
       `;
     }).join("");

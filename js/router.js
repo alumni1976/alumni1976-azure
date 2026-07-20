@@ -30,6 +30,41 @@ let currentRoute = null;
 let currentAbortController = null;
 
 /**
+ * Fade the app container out before swapping content.
+ * Kept dependency-free (inline styles) so it works regardless of
+ * which visual theme is active.
+ */
+function fadeOutApp(app) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    app.style.transition = 'opacity 0.15s ease';
+    app.style.opacity = '0';
+    setTimeout(resolve, 150);
+  });
+}
+
+/**
+ * Fade the app container back in after new content is rendered.
+ */
+function fadeInApp(app) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    app.style.opacity = '1';
+    app.style.transform = 'none';
+    return;
+  }
+  app.style.opacity = '0';
+  app.style.transform = 'translateY(6px)';
+  // Force reflow so the transition below actually animates
+  // eslint-disable-next-line no-unused-expressions
+  app.offsetHeight;
+  app.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+  app.style.opacity = '1';
+  app.style.transform = 'translateY(0)';
+}
+
+/**
  * Get the current route path from URL hash
  */
 function getCurrentRoute() {
@@ -168,6 +203,13 @@ export async function loadRoute() {
   // Update current route
   currentRoute = path;
 
+  // Fade out the current view before swapping (skip on first load,
+  // when the app container only holds the initial loading markup)
+  if (app.dataset.routed === 'true') {
+    await fadeOutApp(app);
+  }
+  app.dataset.routed = 'true';
+
   // Show loading state
   showLoading();
 
@@ -215,6 +257,9 @@ export async function loadRoute() {
     if (window.scrollY > 0) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // Fade the new content in
+    fadeInApp(app);
 
   } catch (err) {
     // Check if this error was from an aborted request

@@ -10,7 +10,8 @@ const THEMES = [
   'style-academic-gold',
   'style-engineering-tech',
   'style-executive-alumni',
-  'style-polytechnic-heritage'
+  'style-polytechnic-heritage',
+  'style-modern-minimal'
 ];
 
 const DEFAULT_THEME = 'style-deep-navy-university';
@@ -21,7 +22,8 @@ const THEME_LABELS = {
   'style-academic-gold': 'Academic Gold',
   'style-engineering-tech': 'Engineering Tech',
   'style-executive-alumni': 'Executive Alumni',
-  'style-polytechnic-heritage': 'Polytechnic Heritage'
+  'style-polytechnic-heritage': 'Polytechnic Heritage',
+  'style-modern-minimal': 'Modern Minimal'
 };
 
 /**
