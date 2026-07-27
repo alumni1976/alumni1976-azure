@@ -431,14 +431,17 @@ function openPrivateArea() {
   const welcome = document.getElementById("thinktankWelcome");
 
   if (welcome && currentMember) {
-    welcome.textContent = formatText(
-      "thinktank.welcomeMessage",
-      {
-        name: currentMember.memberName || memberName(currentMember)
-      },
-      `Καλώς ήρθες, ${currentMember.memberName || memberName(currentMember)}`
-    );
-  }
+
+  const vocativeName =
+    `${currentMember.vocativeFirstName || currentMember.firstName || ""} ${
+      currentMember.vocativeLastName || currentMember.lastName || ""
+    }`.trim();
+
+  console.log("ThinkTank member:", currentMember);
+  console.log("Vocative name:", vocativeName);
+
+  welcome.textContent = `Καλώς ήρθες, ${vocativeName}`;
+}
 }
 
 async function resetAndLoadPosts() {
