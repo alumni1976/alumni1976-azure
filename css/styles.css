@@ -68,11 +68,31 @@ nav {
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
-  min-height: 70px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1.25rem;
+}
+
+.reunion-link {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--gold-light);
+  white-space: nowrap;
+  padding: 6px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  flex-shrink: 0;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.reunion-link:hover {
+  background: rgba(201, 168, 76, 0.12);
 }
 
 .logo,
@@ -160,7 +180,7 @@ nav {
 
 .loading,
 .route-error {
-  max-width: 1100px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 90px 40px;
   color: var(--muted2);
@@ -411,7 +431,7 @@ nav {
 /* ── SECTIONS / CARDS ── */
 .section,
 section {
-  max-width: 1180px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 5rem 2rem;
 }
@@ -648,7 +668,7 @@ section p {
 footer {
   border-top: 1px solid var(--border);
   background: rgba(8,18,30,.98);
-  padding: 2.4rem 2rem;
+  padding: 1.25rem 2rem;
 }
 
 .footer-inner {
@@ -673,39 +693,9 @@ footer {
   font-weight: 700;
 }
 
-.footer-center {
-  text-align: center;
-  color: var(--muted2);
-  font-size: .92rem;
-}
-
-.footer-center span {
-  color: var(--muted);
-}
-
-.footer-links {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.footer-links a {
-  font-family: var(--font-mono);
-  font-size: .7rem;
-  color: var(--muted2);
-  text-transform: uppercase;
-  text-decoration: none;
-  letter-spacing: .08em;
-}
-
-.footer-links a:hover {
-  color: var(--gold-light);
-}
-
 /* ── Existing Site1 page compatibility ── */
 .profs-header {
-  max-width: 1100px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 90px 40px 60px;
   position: relative;
@@ -756,7 +746,7 @@ footer {
 .community-main,
 .profs-main,
 .photos-main {
-  max-width: 1180px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 40px 40px 90px;
 }
@@ -885,10 +875,6 @@ footer {
     grid-template-columns: 1fr;
     text-align: center;
   }
-
-  .footer-links {
-    justify-content: center;
-  }
 }
 
 @media (max-width: 768px) {
@@ -905,7 +891,6 @@ footer {
 ========================================== */
 
 .community-header {
-  max-width: 1180px;
   margin: 0 auto;
   padding: 4.8rem 2.5rem 2rem;
   text-align: center;
@@ -966,7 +951,6 @@ footer {
 }
 
 .community-main {
-  max-width: 1260px;
   margin: 0 auto;
   padding: 2.2rem 2.5rem 6rem;
 }
@@ -1106,7 +1090,6 @@ footer {
 }
 
 
-.footer-centered{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}.footer-links{display:none!important}
 
 /* ==========================================
    DIRECTORY PAGE / ΕΥΡΕΤΗΡΙΟ
@@ -1114,7 +1097,7 @@ footer {
 ========================================== */
 
 .directory-page {
-  max-width: 1120px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 72px 40px 90px;
 }
@@ -1331,7 +1314,7 @@ footer {
 ========================================== */
 .events-page,
 .event-registration-page {
-  max-width: 1100px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 76px 40px 96px;
 }
@@ -2136,7 +2119,7 @@ body.style-executive-alumni .theme-control select {
 
 /* Reunion photos page — also had zero CSS */
 .reunion-photos-page {
-  max-width: 1180px;
+  max-width: min(94vw, 1600px);
   margin: 0 auto;
   padding: 2.75rem 40px 2.5rem;
 }
@@ -2312,6 +2295,27 @@ body.style-executive-alumni .theme-control select {
 
 .theme-control select {
   max-width: 240px;
+}
+
+@media (min-width: 1200px) {
+  .nav-menu-area {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav-menu-area #menu,
+  .nav-menu-area .site-menu {
+    width: auto;
+    overflow-x: visible;
+  }
+
+  .theme-control {
+    align-self: center;
+    margin-left: 10px;
+    padding-left: 14px;
+    border-left: 1px solid rgba(201, 168, 76, 0.22);
+  }
 }
 
 @media (max-width: 1199px) {
@@ -2792,7 +2796,7 @@ body.style-executive-alumni .theme-control select {
    ========================================================= */
 
 .community-header {
-  max-width: 1240px;
+  max-width: min(94vw, 1600px);
   padding-top: clamp(4.5rem, 8vw, 7rem);
   padding-bottom: clamp(2.25rem, 5vw, 4rem);
 }
@@ -2830,7 +2834,6 @@ body.style-executive-alumni .theme-control select {
 }
 
 .community-main {
-  max-width: 1360px;
   padding-top: 1rem;
 }
 
@@ -3012,9 +3015,12 @@ body.style-executive-alumni .theme-control select {
    ========================================================= */
 
 .footer-inner.footer-three-column {
-  grid-template-columns: minmax(150px, auto) minmax(280px, 1fr) auto;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
+  max-width: none;
+  margin: 0;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.5rem;
   width: 100%;
+  padding: 0;
 }
 
 .footer-three-column .footer-brand {
@@ -3107,7 +3113,7 @@ body {
 }
 
 .community-main {
-  max-width: 1420px;
+  max-width: min(94vw, 1600px);
   padding: 0 2.5rem 7rem;
 }
 
