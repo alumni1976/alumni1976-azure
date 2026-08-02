@@ -1,5 +1,6 @@
 import { loadRoute } from './router.js';
 import { loadTexts } from './services/textService.js';
+import { getMenuItems } from './api/menuApi.js';
 
 /**
  * Configuration
@@ -8,31 +9,27 @@ const CONFIG = {
   // Maximum retry attempts for menu loading
   maxMenuRetries: 2,
   // Delay between menu retry attempts (ms)
-  menuRetryDelay: 1000,
-  // Timeout for menu loading (ms)
-  menuTimeout: 10000
+  menuRetryDelay: 1000
 };
 
 /**
- * Fallback menu structure - used when database is unavailable
+ * Fallback menu structure - used when the API is unavailable.
+ * Mirrors the live /api/menuitems rows. Note "Reunion 1976" is
+ * intentionally NOT here — it's a standalone pill link in the nav
+ * (see index.html .reunion-link), and its sub-pages are reachable
+ * from the reunion hub page's own nav cards, not from this menu.
  */
 const FALLBACK_MENU = [
   { item: 'Αρχική', url: 'home' },
-  { item: 'Μέλη', url: 'community' },
+  { item: 'Κοινότητα', url: 'community' },
   { item: 'Φωτογραφίες', url: 'alumniphotos' },
   { item: 'Καθηγητές', url: 'alumniprofs' },
   { item: 'Εκδηλώσεις', url: 'alumnievents' },
-  { item: 'ThinkTank', url: 'thinktank' },
-  {
-    item: 'Reunion 1976',
-    url: 'reunion',
-    children: [
-      { item: 'Εντυπώσεις Πρωταγωνιστών', url: 'reuniongreetings' },
-      { item: 'Βίντεο Ομιλητών', url: 'reunionvideos' },
-      { item: 'Φωτογραφικό Υλικό', url: 'reunionphotos' },
-      { item: 'Συμμετέχοντες', url: 'reunionattendees' }
-    ]
-  }
+  { item: 'Επικοινωνία', url: 'contact' },
+  { item: 'Ευρετήριο', url: 'directory' },
+  { item: 'Δεξαμενή σκέψεων', url: 'thinktank' },
+  { item: 'ΣΥΧΝΕΣ ΕΡΩΤΗΣΕΙΣ', url: 'faq' },
+  { item: 'Αξιολόγηση', url: 'evaluation' }
 ];
 
 /**
@@ -82,7 +79,10 @@ function setActiveMenuItem() {
 }
 
 /**
- * Render menu from data rows
+ * Render menu from data rows.
+ * Rows are flat ({ item, url }) for the current API, but a row
+ * with a non-empty `children` array will still render as a
+ * dropdown, in case a parent/child menu is added later.
  */
 function renderMenuRows(rows) {
   const menu = document.getElementById('menu');
@@ -137,98 +137,34 @@ function renderMenuRows(rows) {
 }
 
 /**
- * Load menu data from Supabase with fallback
+ * Load menu data from the SQL-backed Web API, with a flat fallback
+ * if the API is unreachable.
  */
 async function renderMenu() {
-  const dbScript = document.getElementById('supabase-db');
-  const apiKey = dbScript?.dataset?.apikey;
-
-  // If no API key, use fallback immediately
-  if (!apiKey) {
-    console.warn('No API key found, using fallback menu');
-    renderMenuRows(FALLBACK_MENU);
-    return;
-  }
-
-  // Try to load menu from database with retries
   let attempts = 0;
-  let loaded = false;
 
-  while (attempts <= CONFIG.maxMenuRetries && !loaded) {
+  while (attempts <= CONFIG.maxMenuRetries) {
     try {
-      // Check if menuRepository is available
-      if (!window.menuRepository) {
-        // Wait a bit for database.js to load
-        await new Promise(resolve => setTimeout(resolve, 200));
-        attempts++;
-        continue;
-      }
+      const items = await getMenuItems();
 
-      const dataset = await window.menuRepository.fetchMenuData('menuitems');
-
-      if (dataset?.items?.length) {
-        const items = dataset.items;
-
-        // Ensure Reunion has children from fallback
-        const reunionIdx = items.findIndex(
-          i => normalizeRoute(i.url) === 'reunion'
-        );
-
-        if (reunionIdx >= 0) {
-          const fallbackReunion = FALLBACK_MENU.find(
-            m => normalizeRoute(m.url) === 'reunion'
-          );
-          if (fallbackReunion?.children) {
-            items[reunionIdx].children = fallbackReunion.children;
-          }
-        }
-
+      if (items?.length) {
         renderMenuRows(items);
-        loaded = true;
-        break;
+        return;
       }
 
       attempts++;
-      if (attempts <= CONFIG.maxMenuRetries) {
-        await new Promise(resolve => setTimeout(resolve, CONFIG.menuRetryDelay));
-      }
-
     } catch (error) {
       console.warn(`Menu load attempt ${attempts + 1} failed:`, error.message);
       attempts++;
-      if (attempts <= CONFIG.maxMenuRetries) {
-        await new Promise(resolve => setTimeout(resolve, CONFIG.menuRetryDelay));
-      }
+    }
+
+    if (attempts <= CONFIG.maxMenuRetries) {
+      await new Promise(resolve => setTimeout(resolve, CONFIG.menuRetryDelay));
     }
   }
 
-  // If all attempts failed, use fallback
-  if (!loaded) {
-    console.warn('All menu load attempts failed, using fallback');
-    renderMenuRows(FALLBACK_MENU);
-  }
-}
-
-/**
- * Initialize menu repository from database.js
- */
-function initializeMenuRepository() {
-  const dbScript = document.getElementById('supabase-db');
-  const apiKey = dbScript?.dataset?.apikey;
-
-  if (typeof window.SupabaseMenuRepository !== 'undefined' && apiKey) {
-    try {
-      window.menuRepository = new window.SupabaseMenuRepository(apiKey);
-      console.log('✅ MenuRepository initialized');
-      return true;
-    } catch (error) {
-      console.error('Failed to initialize MenuRepository:', error);
-      return false;
-    }
-  }
-
-  console.warn('⚠️ SupabaseMenuRepository not available yet');
-  return false;
+  console.warn('All menu load attempts failed, using fallback');
+  renderMenuRows(FALLBACK_MENU);
 }
 
 // ─── Event Listeners ──────────────────────────────────────────────
@@ -245,15 +181,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Load user-facing texts
   await loadTexts();
 
-  // Initialize menu repository
-  const initialized = initializeMenuRepository();
-
-  // If not initialized on first attempt, try again after a short delay
-  if (!initialized) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    initializeMenuRepository();
-  }
-
   // Render menu
   await renderMenu();
 
@@ -263,4 +190,4 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Export for debugging
-export { normalizeRoute, renderMenu, initializeMenuRepository };
+export { normalizeRoute, renderMenu };

@@ -40,7 +40,7 @@ function formatGreekTime(timeValue) {
   return `${match[1].padStart(2, "0")}:${match[2]}`;
 }
 
-function googleDriveImage(url, size = "w1600") {
+function resolveImageUrl(url, size = "w1600") {
   if (!url) return "";
 
   const cleanUrl = String(url).trim();
@@ -144,7 +144,7 @@ export async function afterRender() {
     }
 
     eventsList.innerHTML = events.map(event => {
-      const image = googleDriveImage(event.bannerImage, "w1800");
+      const image = resolveImageUrl(event.bannerImage, "w1800");
       const dateText = formatGreekDate(event.eventDate);
       const timeText = formatGreekTime(event.eventTime);
 

@@ -1,9 +1,5 @@
 import { getText } from "../services/textService.js";
-
-const SUPABASE_URL = "https://hpnrlshfxxcyujrxegka.supabase.co";
-
-const SUPABASE_KEY =
-  document.getElementById("supabase-db")?.dataset?.apikey;
+import { getProfPhotos } from "../api/profPhotosApi.js";
 
 function escapeHtml(text = "") {
   return String(text)
@@ -40,32 +36,6 @@ function initialsFromName(name = "") {
       "alumniprofs.initialFallback",
       "Κ"
     );
-}
-
-async function fetchProfessorPhotos() {
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/prof_photos?select=id,url_cloud,name,birth_death_years,is_deceased,sort_order&order=sort_order.asc,id.asc`,
-    {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw data || new Error(
-      getText(
-        "alumniprofs.fetchError",
-        "Failed to load professor photos"
-      )
-    );
-  }
-
-  return data || [];
 }
 
 export async function render() {
@@ -162,16 +132,8 @@ export async function afterRender() {
   const livingGrid = document.getElementById("livingProfsGrid");
   const memorialGrid = document.getElementById("memorialProfsGrid");
 
-  if (!SUPABASE_KEY) {
-    message.textContent = getText(
-      "alumniprofs.missingApiKey",
-      "Δεν βρέθηκε Supabase API key."
-    );
-    return;
-  }
-
   try {
-    const profs = await fetchProfessorPhotos();
+    const profs = await getProfPhotos();
 
     if (!profs.length) {
       message.textContent = getText(
@@ -182,11 +144,11 @@ export async function afterRender() {
     }
 
     const livingProfs = profs.filter(
-      prof => prof.is_deceased !== true
+      prof => prof.isDeceased !== true
     );
 
     const memorialProfs = profs.filter(
-      prof => prof.is_deceased === true
+      prof => prof.isDeceased === true
     );
 
     livingGrid.innerHTML = livingProfs
@@ -223,7 +185,7 @@ export async function afterRender() {
 }
 
 function profCard(prof) {
-  const image = String(prof.url_cloud || "").trim();
+  const image = String(prof.urlCloud || "").trim();
 
   const name = String(
     prof.name ||
@@ -234,10 +196,10 @@ function profCard(prof) {
   ).trim();
 
   const years = String(
-    prof.birth_death_years || ""
+    prof.birthDeathYears || ""
   ).trim();
 
-  const isDeceased = prof.is_deceased === true;
+  const isDeceased = prof.isDeceased === true;
   const initials = initialsFromName(name);
 
   const yearsText = isDeceased && years

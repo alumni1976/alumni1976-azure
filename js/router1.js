@@ -18,7 +18,6 @@ const routes = {
   eventregistration: () => import('./pages/eventregistration.js'),
   directory: () => import('./pages/directory.js'),
   faq: () => import('./pages/faq.js'),
-  evaluation: () => import('./pages/evaluation.js'),
   thinktank: () => import('./pages/thinktank.js'),
   contact: () => import('./pages/contact.js')
 };

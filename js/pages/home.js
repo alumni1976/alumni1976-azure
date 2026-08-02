@@ -225,7 +225,7 @@ export async function render() {
 
           <div class="heritage-photo">
             <img
-              src="https://drive.google.com/thumbnail?id=1Kskj_9y0lNF94FT3XZgS-D9RyQk81XjN&sz=w2000"
+              src="https://res.cloudinary.com/dao9d1ozc/image/upload/v1780899102/P3Gemini_Generated_Image_u93ntwu93ntwu93n_tj1cn6.png"
               alt="Alumni 1976"
             >
           </div>

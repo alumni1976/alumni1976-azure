@@ -216,6 +216,11 @@
                 allowfullscreen
                 style="display:none;">
             </iframe>
+            <video
+                id="videoPlayer"
+                controls
+                style="display:none; width:100%; height:100%; background:#000;">
+            </video>
         </div>
     </div>
 
@@ -247,6 +252,7 @@
     const videoContainer = document.getElementById('videoContainer');
     const videoPlaceholder = document.getElementById('videoPlaceholder');
     const videoFrame = document.getElementById('videoFrame');
+    const videoPlayer = document.getElementById('videoPlayer');
     const cvFrame = document.getElementById('cvFrame');
     const cvLoading = document.getElementById('cvLoading');
 
@@ -278,14 +284,6 @@
         return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
     }
 
-    function isDriveVideo(url) {
-        if (!url) return false;
-        const id = extractDriveId(url);
-        if (!id) return false;
-        // Drive video preview works for most video files
-        return true;
-    }
-
     // ─── Media (left column) ──────────────────────────────────────────
 
     function loadMedia(mediaLink) {
@@ -296,23 +294,39 @@
             return;
         }
 
-        // Show video frame, hide placeholder
+        // Legacy Google Drive links — keep the iframe preview path working
+        if (mediaLink.includes('drive.google.com')) {
+            videoPlaceholder.style.display = 'none';
+            videoFrame.style.display = 'block';
+            videoFrame.src = toDrivePreview(mediaLink);
+
+            videoFrame.addEventListener('error', function() {
+                videoPlaceholder.style.display = 'flex';
+                videoPlaceholder.innerHTML = `
+                    <span>⚠️ Δεν ήταν δυνατή η φόρτωση του βίντεο.</span>
+                    <a href="${mediaLink}" target="_blank" rel="noopener" style="color:#B8944A;margin-top:8px;">
+                        Άνοιγμα στο Google Drive
+                    </a>
+                `;
+                videoFrame.style.display = 'none';
+            });
+            return;
+        }
+
+        // Cloudinary or any other direct video file URL — play natively
         videoPlaceholder.style.display = 'none';
-        videoFrame.style.display = 'block';
+        videoPlayer.style.display = 'block';
+        videoPlayer.src = mediaLink;
 
-        const previewUrl = toDrivePreview(mediaLink);
-        videoFrame.src = previewUrl;
-
-        // Handle load errors
-        videoFrame.addEventListener('error', function() {
+        videoPlayer.addEventListener('error', function() {
+            videoPlayer.style.display = 'none';
             videoPlaceholder.style.display = 'flex';
             videoPlaceholder.innerHTML = `
                 <span>⚠️ Δεν ήταν δυνατή η φόρτωση του βίντεο.</span>
                 <a href="${mediaLink}" target="_blank" rel="noopener" style="color:#B8944A;margin-top:8px;">
-                    Άνοιγμα στο Google Drive
+                    Άνοιγμα βίντεο
                 </a>
             `;
-            videoFrame.style.display = 'none';
         });
     }
 
