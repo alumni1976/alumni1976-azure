@@ -67,8 +67,6 @@ export async function afterRender() {
   try {
     const all = await getReunionData();
 
-    console.log("Reunion data sample:", all[0]);
-
     const validMembers = all.filter(x =>
       (x.firstName || x.lastName)
     );

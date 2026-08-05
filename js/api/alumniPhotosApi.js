@@ -9,7 +9,6 @@ export async function getAlumniPhotos() {
 
   const result = await response.json();
 
-  console.log("Alumni Photos API:", result);
 
   return result.data || [];
 }

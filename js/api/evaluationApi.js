@@ -15,7 +15,6 @@ export async function createEvaluation(evaluation) {
     throw new Error(result?.message || `HTTP ${response.status}`);
   }
 
-  console.log("Evaluation API:", result);
 
   return result;
 }

@@ -130,3 +130,93 @@ export async function likeThinkTankPost({ postId, memberId }) {
 
   return result?.data || null;
 }
+
+export async function updateOwnPost({ postId, memberId, password, body }) {
+  const response = await fetch(`${API_BASE}/api/posts/${postId}/self`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ memberId, password, body })
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  if (result?.error) {
+    throw new Error(result.error);
+  }
+
+  return result?.data || null;
+}
+
+export async function deleteOwnPost({ postId, memberId, password }) {
+  const params = new URLSearchParams({
+    memberId: String(memberId),
+    password
+  });
+
+  const response = await fetch(`${API_BASE}/api/posts/${postId}/self?${params.toString()}`, {
+    method: "DELETE"
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  if (result?.error) {
+    throw new Error(result.error);
+  }
+
+  return result?.data === true;
+}
+
+export async function updateOwnComment({ commentId, memberId, password, commentText }) {
+  const response = await fetch(`${API_BASE}/api/postcomments/${commentId}/self`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ memberId, password, commentText })
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  if (result?.error) {
+    throw new Error(result.error);
+  }
+
+  return result?.data || null;
+}
+
+export async function deleteOwnComment({ commentId, memberId, password }) {
+  const params = new URLSearchParams({
+    memberId: String(memberId),
+    password
+  });
+
+  const response = await fetch(`${API_BASE}/api/postcomments/${commentId}/self?${params.toString()}`, {
+    method: "DELETE"
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  if (result?.error) {
+    throw new Error(result.error);
+  }
+
+  return result?.data === true;
+}

@@ -9,7 +9,6 @@ export async function getProfPhotos() {
 
   const result = await response.json();
 
-  console.log("Prof Photos API:", result);
 
   return result.data || [];
 }

@@ -9,7 +9,6 @@ export async function getAlumniEvents() {
 
   const result = await response.json();
 
-  console.log("Alumni Events API:", result);
 
   return result.data || [];
 }

@@ -19,7 +19,6 @@ export async function createEventForm(eventForm) {
     throw new Error(result.error);
   }
 
-  console.log("Event Form API:", result);
 
   return result?.data || null;
 }

@@ -3,7 +3,11 @@ import {
   getThinkTankPosts,
   createThinkTankPost,
   createThinkTankComment,
-  likeThinkTankPost
+  likeThinkTankPost,
+  updateOwnPost,
+  deleteOwnPost,
+  updateOwnComment,
+  deleteOwnComment
 } from "../api/thinkTankApi.js";
 
 import {
@@ -14,6 +18,7 @@ import {
 const POSTS_PAGE_SIZE = 10;
 
 let currentMember = null;
+let currentPassword = null;
 let currentOffset = 0;
 let allPostsLoaded = false;
 let currentCategoryFilter = "all";
@@ -246,15 +251,19 @@ export async function render() {
 
 export async function afterRender() {
   const savedMember = sessionStorage.getItem("thinktankMember");
+  const savedPassword = sessionStorage.getItem("thinktankPassword");
 
   if (savedMember) {
     try {
       currentMember = JSON.parse(savedMember);
+      currentPassword = savedPassword || null;
       openPrivateArea();
       await resetAndLoadPosts();
     } catch {
       sessionStorage.removeItem("thinktankMember");
+      sessionStorage.removeItem("thinktankPassword");
       currentMember = null;
+      currentPassword = null;
     }
   }
 
@@ -290,11 +299,14 @@ export async function afterRender() {
       }
 
       currentMember = member;
+      currentPassword = password;
 
       sessionStorage.setItem(
         "thinktankMember",
         JSON.stringify(currentMember)
       );
+
+      sessionStorage.setItem("thinktankPassword", currentPassword);
 
       openPrivateArea();
       await resetAndLoadPosts();
@@ -406,8 +418,10 @@ export async function afterRender() {
 
   document.getElementById("thinktankLogoutBtn")?.addEventListener("click", () => {
     sessionStorage.removeItem("thinktankMember");
+    sessionStorage.removeItem("thinktankPassword");
 
     currentMember = null;
+    currentPassword = null;
     currentOffset = 0;
     allPostsLoaded = false;
     currentCategoryFilter = "all";
@@ -436,9 +450,6 @@ function openPrivateArea() {
     `${currentMember.vocativeFirstName || currentMember.firstName || ""} ${
       currentMember.vocativeLastName || currentMember.lastName || ""
     }`.trim();
-
-  console.log("ThinkTank member:", currentMember);
-  console.log("Vocative name:", vocativeName);
 
   welcome.textContent = `Καλώς ήρθες, ${vocativeName}`;
 }
@@ -537,6 +548,7 @@ function renderPost(post) {
 
   const comments = Array.isArray(post.comments) ? post.comments : [];
   const likesCount = Number(post.likesCount || 0);
+  const isOwnPost = currentMember && Number(post.memberId) === Number(currentMember.id);
 
   return `
     <article class="thinktank-post" data-post-id="${post.id}">
@@ -547,14 +559,39 @@ function renderPost(post) {
           <h3>${escapeHtml(memberName(postMember))}</h3>
           <span>${formatDate(post.createdAt)} · ${escapeHtml(post.category || "thought")}</span>
         </div>
+
+        ${isOwnPost ? `
+          <div class="thinktank-own-controls">
+            <button class="btn-link edit-post-btn" type="button" data-post-id="${post.id}">
+              ${getText("thinktank.editButton", "Επεξεργασία")}
+            </button>
+            <button class="btn-link delete-post-btn" type="button" data-post-id="${post.id}">
+              ${getText("thinktank.deleteButton", "Διαγραφή")}
+            </button>
+          </div>
+        ` : ""}
       </div>
 
-      <div class="thinktank-post-body collapsed">
+      <div class="thinktank-post-body collapsed" data-post-id="${post.id}">
         <p class="thinktank-post-text">${escapeHtml(post.body)}</p>
         <button class="thinktank-toggle-text" type="button" data-state="collapsed">
           ${getText("thinktank.more", "περισσότερα...")}
         </button>
       </div>
+
+      ${isOwnPost ? `
+        <div class="thinktank-edit-form hidden" data-post-id="${post.id}">
+          <textarea class="thinktank-input edit-post-textarea" data-post-id="${post.id}">${escapeHtml(post.body)}</textarea>
+          <div class="thinktank-edit-actions">
+            <button class="btn-outline save-post-btn" type="button" data-post-id="${post.id}">
+              ${getText("thinktank.saveButton", "Αποθήκευση")}
+            </button>
+            <button class="btn-link cancel-edit-post-btn" type="button" data-post-id="${post.id}">
+              ${getText("thinktank.cancelButton", "Ακύρωση")}
+            </button>
+          </div>
+        </div>
+      ` : ""}
 
       <div class="post-actions">
         <button class="thinktank-action like-btn" data-post-id="${post.id}">
@@ -572,30 +609,11 @@ function renderPost(post) {
         )}</span>
       </div>
 
-      <div class="thinktank-comments">
-        ${comments.map(comment => {
-          const commentMember = {
-            firstName: comment.firstName,
-            lastName: comment.lastName,
-            photoLink: comment.photoLink
-          };
-
-          return `
-            <div class="thinktank-comment">
-              <div class="post-header comment-header thinktank-comment-header">
-                ${memberAvatar(commentMember, "thinktank-avatar-34")}
-
-                <div>
-                  <strong>${escapeHtml(memberName(commentMember))}</strong>
-                  <span>${formatDate(comment.createdAt)}</span>
-                </div>
-              </div>
-
-              <p>${escapeHtml(comment.commentText)}</p>
-            </div>
-          `;
-        }).join("")}
-      </div>
+      ${comments.length ? `
+        <div class="thinktank-comments">
+          ${comments.map(comment => renderComment(comment)).join("")}
+        </div>
+      ` : ""}
 
       <div class="thinktank-comment-form">
         <input
@@ -609,6 +627,56 @@ function renderPost(post) {
         </button>
       </div>
     </article>
+  `;
+}
+
+function renderComment(comment) {
+  const commentMember = {
+    firstName: comment.firstName,
+    lastName: comment.lastName,
+    photoLink: comment.photoLink
+  };
+
+  const isOwnComment = currentMember && Number(comment.memberId) === Number(currentMember.id);
+
+  return `
+    <div class="thinktank-comment" data-comment-id="${comment.id}">
+      <div class="post-header comment-header thinktank-comment-header">
+        ${memberAvatar(commentMember, "thinktank-avatar-34")}
+
+        <div>
+          <strong>${escapeHtml(memberName(commentMember))}</strong>
+          <span>${formatDate(comment.createdAt)}</span>
+        </div>
+
+        ${isOwnComment ? `
+          <div class="thinktank-own-controls">
+            <button class="btn-link edit-comment-btn" type="button" data-comment-id="${comment.id}">
+              ${getText("thinktank.editButton", "Επεξεργασία")}
+            </button>
+            <button class="btn-link delete-comment-btn" type="button" data-comment-id="${comment.id}">
+              ${getText("thinktank.deleteButton", "Διαγραφή")}
+            </button>
+          </div>
+        ` : ""}
+      </div>
+
+      <p class="thinktank-comment-text" data-comment-id="${comment.id}">${escapeHtml(comment.commentText)}</p>
+
+      ${isOwnComment ? `
+        <div class="thinktank-edit-form hidden" data-comment-id="${comment.id}">
+          <textarea class="thinktank-input edit-comment-textarea" data-comment-id="${comment.id}">${escapeHtml(comment.commentText)}</textarea>
+          <div class="thinktank-edit-actions">
+            <button class="btn-outline save-comment-btn" type="button" data-comment-id="${comment.id}">
+              ${getText("thinktank.saveButton", "Αποθήκευση")}
+            </button>
+            <button class="btn-link cancel-edit-comment-btn" type="button" data-comment-id="${comment.id}">
+              ${getText("thinktank.cancelButton", "Ακύρωση")}
+            </button>
+          </div>
+        </div>
+      ` : ""}
+    </div>
   `;
 }
 
@@ -691,6 +759,282 @@ function attachPostEvents() {
       }
     });
   });
+
+  document.querySelectorAll(".edit-post-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", () => {
+      const postId = button.dataset.postId;
+      toggleEditForm("post", postId, true);
+    });
+  });
+
+  document.querySelectorAll(".cancel-edit-post-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", () => {
+      const postId = button.dataset.postId;
+      toggleEditForm("post", postId, false);
+    });
+  });
+
+  document.querySelectorAll(".save-post-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", async () => {
+      const postId = Number(button.dataset.postId);
+      await saveEditedPost(postId, button);
+    });
+  });
+
+  document.querySelectorAll(".delete-post-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", async () => {
+      const postId = Number(button.dataset.postId);
+      await deletePostHandler(postId, button);
+    });
+  });
+
+  document.querySelectorAll(".edit-comment-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", () => {
+      const commentId = button.dataset.commentId;
+      toggleEditForm("comment", commentId, true);
+    });
+  });
+
+  document.querySelectorAll(".cancel-edit-comment-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", () => {
+      const commentId = button.dataset.commentId;
+      toggleEditForm("comment", commentId, false);
+    });
+  });
+
+  document.querySelectorAll(".save-comment-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", async () => {
+      const commentId = Number(button.dataset.commentId);
+      await saveEditedComment(commentId, button);
+    });
+  });
+
+  document.querySelectorAll(".delete-comment-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", async () => {
+      const commentId = Number(button.dataset.commentId);
+      await deleteCommentHandler(commentId, button);
+    });
+  });
+}
+
+function toggleEditForm(kind, id, show) {
+  const selector = kind === "post"
+    ? `.thinktank-edit-form[data-post-id="${id}"]`
+    : `.thinktank-edit-form[data-comment-id="${id}"]`;
+
+  const form = document.querySelector(selector);
+  if (!form) return;
+
+  form.classList.toggle("hidden", !show);
+
+  const bodySelector = kind === "post"
+    ? `.thinktank-post-body[data-post-id="${id}"]`
+    : `.thinktank-comment-text[data-comment-id="${id}"]`;
+
+  const body = document.querySelector(bodySelector);
+  if (body) {
+    body.classList.toggle("hidden", show);
+  }
+}
+
+async function saveEditedPost(postId, button) {
+  if (!currentMember || !currentPassword) return;
+
+  const textarea = document.querySelector(
+    `.edit-post-textarea[data-post-id="${postId}"]`
+  );
+
+  if (!textarea) return;
+
+  const body = textarea.value.trim();
+
+  if (!body) {
+    alert(getText("thinktank.emptyPostError", "Η ανάρτηση δεν μπορεί να είναι κενή."));
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = getText("thinktank.aiEvaluatingComment", "Αξιολόγηση AI...");
+
+  try {
+    const updated = await updateOwnPost({
+      postId,
+      memberId: currentMember.id,
+      password: currentPassword,
+      body
+    });
+
+    if (updated?.isApproved) {
+      alert(getText(
+        "thinktank.postApproved",
+        "Η ανάρτηση ενημερώθηκε και είναι ορατή."
+      ));
+    } else {
+      alert(getText(
+        "thinktank.postPendingReview",
+        "Η ανάρτηση ενημερώθηκε και αναμένει εκ νέου έλεγχο από τον διαχειριστή."
+      ));
+    }
+
+    await resetAndLoadPosts();
+
+  } catch (err) {
+    console.error("ThinkTank post edit error:", err);
+
+    alert(
+      err?.message ||
+      getText("thinktank.postSaveError", "Αποτυχία ενημέρωσης ανάρτησης.")
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = getText("thinktank.saveButton", "Αποθήκευση");
+  }
+}
+
+async function deletePostHandler(postId, button) {
+  if (!currentMember || !currentPassword) return;
+
+  const confirmed = confirm(getText(
+    "thinktank.confirmDeletePost",
+    "Θέλετε σίγουρα να διαγράψετε αυτή την ανάρτηση; Η ενέργεια δεν αναιρείται."
+  ));
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+
+  try {
+    await deleteOwnPost({
+      postId,
+      memberId: currentMember.id,
+      password: currentPassword
+    });
+
+    await resetAndLoadPosts();
+
+  } catch (err) {
+    console.error("ThinkTank post delete error:", err);
+
+    alert(
+      err?.message ||
+      getText("thinktank.postDeleteError", "Αποτυχία διαγραφής ανάρτησης.")
+    );
+
+    button.disabled = false;
+  }
+}
+
+async function saveEditedComment(commentId, button) {
+  if (!currentMember || !currentPassword) return;
+
+  const textarea = document.querySelector(
+    `.edit-comment-textarea[data-comment-id="${commentId}"]`
+  );
+
+  if (!textarea) return;
+
+  const commentText = textarea.value.trim();
+
+  if (!commentText) {
+    alert(getText("thinktank.emptyCommentError", "Το σχόλιο δεν μπορεί να είναι κενό."));
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = getText("thinktank.aiEvaluatingComment", "Αξιολόγηση AI...");
+
+  try {
+    const updated = await updateOwnComment({
+      commentId,
+      memberId: currentMember.id,
+      password: currentPassword,
+      commentText
+    });
+
+    if (updated?.isApproved) {
+      alert(getText(
+        "thinktank.commentApprovedEdit",
+        "Το σχόλιο ενημερώθηκε και είναι ορατό."
+      ));
+    } else {
+      alert(getText(
+        "thinktank.commentPendingReview",
+        "Το σχόλιο ενημερώθηκε και αναμένει εκ νέου έλεγχο από τον διαχειριστή."
+      ));
+    }
+
+    await resetAndLoadPosts();
+
+  } catch (err) {
+    console.error("ThinkTank comment edit error:", err);
+
+    alert(
+      err?.message ||
+      getText("thinktank.commentEditSaveError", "Αποτυχία ενημέρωσης σχολίου.")
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = getText("thinktank.saveButton", "Αποθήκευση");
+  }
+}
+
+async function deleteCommentHandler(commentId, button) {
+  if (!currentMember || !currentPassword) return;
+
+  const confirmed = confirm(getText(
+    "thinktank.confirmDeleteComment",
+    "Θέλετε σίγουρα να διαγράψετε αυτό το σχόλιο; Η ενέργεια δεν αναιρείται."
+  ));
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+
+  try {
+    await deleteOwnComment({
+      commentId,
+      memberId: currentMember.id,
+      password: currentPassword
+    });
+
+    await resetAndLoadPosts();
+
+  } catch (err) {
+    console.error("ThinkTank comment delete error:", err);
+
+    alert(
+      err?.message ||
+      getText("thinktank.commentDeleteError", "Αποτυχία διαγραφής σχολίου.")
+    );
+
+    button.disabled = false;
+  }
 }
 
 async function likePost(postId) {

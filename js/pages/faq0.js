@@ -1,8 +1,6 @@
-/**
- * Page component for Frequently Asked Questions (FAQ)
- */
+import { getText } from "../services/textService.js";
 export async function render() {
-  return `
+  return getText("faq.renderHtml", `
     <section class="faq-page">
       <p class="section-tag">ALUMNI 1976</p>
       <h2>ΣΥΧΝΕΣ ΕΡΩΤΗΣΕΙΣ</h2>
@@ -87,6 +85,7 @@ export async function render() {
               Τεχνητής Νοημοσύνης (AI), ώστε να ελέγχεται αν το περιεχόμενο είναι σχετικό,
               ευπρεπές και κατάλληλο για δημοσίευση.
             </p>
+
             <p>
               Αν το περιεχόμενο εγκριθεί από το AI, δημοσιεύεται άμεσα. Σε διαφορετική
               περίπτωση δεν δημοσιεύεται και ο χρήστης ενημερώνεται με σχετικό μήνυμα.
@@ -97,24 +96,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">8. Μπορώ να επεξεργαστώ ή να διαγράψω μια ανάρτηση/σχόλιο μου;</summary>
-          <div class="faq-answer">
-            <p>
-              Ναι. Δίπλα σε κάθε δική σας ανάρτηση ή σχόλιο στη <strong>ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ</strong>
-              θα δείτε τις επιλογές «Επεξεργασία» και «Διαγραφή» — εμφανίζονται μόνο στο δικό
-              σας περιεχόμενο, όχι σε αναρτήσεις άλλων μελών.
-            </p>
-            <p>
-              Όταν επεξεργάζεστε μια ανάρτηση ή σχόλιο, το νέο κείμενο περνάει ξανά από τον
-              αυτόματο έλεγχο περιεχομένου (όπως ακριβώς και μια νέα ανάρτηση), οπότε ενδέχεται
-              να χρειαστεί λίγος χρόνος έως ότου εμφανιστεί ξανά δημόσια. Η διαγραφή είναι άμεση
-              και δεν αναιρείται.
-            </p>
-          </div>
-        </details>
-
-        <details class="faq-item">
-          <summary class="faq-question">9. Πώς δηλώνω συμμετοχή σε εκδήλωση;</summary>
+          <summary class="faq-question">8. Πώς δηλώνω συμμετοχή σε εκδήλωση;</summary>
           <div class="faq-answer">
             <p>
               Από τη σελίδα <strong>ΕΚΔΗΛΩΣΕΙΣ</strong> μπορείτε να δείτε τις διαθέσιμες εκδηλώσεις
@@ -124,7 +106,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">10. Μπορώ να στείλω φωτογραφίες ή άλλο υλικό;</summary>
+          <summary class="faq-question">9. Μπορώ να στείλω φωτογραφίες ή άλλο υλικό;</summary>
           <div class="faq-answer">
             <p>
               Ναι. Μπορείτε να στείλετε φωτογραφίες, βιογραφικά ή άλλο σχετικό υλικό στην ομάδα
@@ -135,7 +117,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">11. Γιατί εμφανίζεται η ένδειξη «Στη μνήμη» σε ορισμένα μέλη;</summary>
+          <summary class="faq-question">10. Γιατί εμφανίζεται η ένδειξη «Στη μνήμη» σε ορισμένα μέλη;</summary>
           <div class="faq-answer">
             <p>
               Η ένδειξη αυτή χρησιμοποιείται με σεβασμό για συμφοιτητές μας που δεν είναι πια κοντά μας,
@@ -145,22 +127,25 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">12. Τι είναι το ΣΤΥΛ;</summary>
+          <summary class="faq-question">11. Τι είναι το ΣΤΥΛ;</summary>
           <div class="faq-answer">
             <p>
               Το <strong>ΣΤΥΛ</strong> είναι η επιλογή εμφάνισης του site. Από το σχετικό πεδίο
               επιλογής, που βρίσκεται κάτω από το μενού, μπορείτε να αλλάξετε το οπτικό θέμα
               της ιστοσελίδας.
             </p>
+
             <p>
               Η αλλαγή αυτή επηρεάζει μόνο την εμφάνιση — δηλαδή χρώματα, φόντο και γενική
               αισθητική — και όχι το περιεχόμενο ή τη λειτουργία του site.
             </p>
+
             <p>
               Μπορείτε να επιλέξετε το στυλ που σας είναι πιο ευχάριστο και πιο ευανάγνωστο.
               Η επιλογή σας αποθηκεύεται στον browser σας, ώστε την επόμενη φορά που θα
               επισκεφθείτε το site να εμφανίζεται με το ίδιο στυλ.
             </p>
+
             <p>
               Αν κάποιο στυλ δυσκολεύει την ανάγνωση σε συγκεκριμένη συσκευή, μπορείτε εύκολα
               να επιλέξετε κάποιο από τα υπόλοιπα διαθέσιμα θέματα.
@@ -169,7 +154,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">13. Σχετικά με το 50th Reunion</summary>
+          <summary class="faq-question">12. Σχετικά με το 50th Reunion</summary>
           <div class="faq-answer">
             <p>
               Μέσω του συνδέσμου <a href="#/reunion"><strong>50th Reunion</strong></a> παρουσιάζεται υλικό
@@ -178,6 +163,7 @@ export async function render() {
             </p>
           </div>
         </details>
+
       </div>
 
       <div class="faq-note">
@@ -185,5 +171,5 @@ export async function render() {
         διαχείρισης στο <strong>alumni1976@gmail.com</strong>.
       </div>
     </section>
-  `;
+  `);
 }

@@ -15,7 +15,6 @@ export async function createContactForm(contactForm) {
 
   const result = await response.json();
 
-  console.log("Contact Form API:", result);
 
   if (result.error) {
     throw new Error(result.error);

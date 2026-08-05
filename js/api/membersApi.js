@@ -10,7 +10,6 @@ export async function getMembers() {
 
     const result = await response.json();
 
-    console.log("Members API:", result);
 
     return result.data || [];
 }

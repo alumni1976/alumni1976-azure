@@ -1728,6 +1728,49 @@ img.thinktank-avatar-34 {
   line-height: 1.2;
 }
 
+.thinktank-own-controls {
+  display: flex !important;
+  gap: 10px;
+  margin-left: auto !important;
+  flex-shrink: 0;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  opacity: 0.75;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.btn-link:hover {
+  opacity: 1;
+}
+
+.thinktank-edit-form {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.thinktank-edit-form textarea.thinktank-input {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.thinktank-edit-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .thinktank-post {
   padding: 1.35rem !important;
   margin-bottom: 1.2rem !important;
@@ -1740,7 +1783,30 @@ img.thinktank-avatar-34 {
 }
 
 .thinktank-comment {
-  padding: 0.9rem 0 !important;
+  padding: 0.75rem 0.9rem !important;
+  border-left: 2px solid var(--border);
+  background: rgba(245, 237, 216, 0.035);
+  border-radius: 0 4px 4px 0;
+}
+
+.thinktank-comment + .thinktank-comment {
+  margin-top: 6px;
+}
+
+.thinktank-comment-text {
+  font-size: 0.92rem !important;
+  opacity: 0.88;
+  margin: 0.35rem 0 0 !important;
+  line-height: 1.55 !important;
+}
+
+.thinktank-comments {
+  margin-top: 1rem;
+  margin-left: 1.75rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+  display: grid;
+  gap: 4px;
 }
 
 @media (max-width: 760px) {
@@ -1756,6 +1822,10 @@ img.thinktank-avatar-34 {
 
   .thinktank-post {
     padding: 1.1rem !important;
+  }
+
+  .thinktank-comments {
+    margin-left: 0.75rem;
   }
 }
 
@@ -2219,7 +2289,7 @@ body:not(.style-executive-alumni):not(.style-modern-minimal) .site-menu a.active
 .nav-menu-area #menu,
 .nav-menu-area .site-menu {
   width: 100%;
-  justify-content: flex-end;
+  justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
@@ -2248,7 +2318,7 @@ body:not(.style-executive-alumni):not(.style-modern-minimal) .site-menu a.active
   .nav-menu-area #menu,
   .nav-menu-area .site-menu {
     width: auto;
-    overflow-x: visible;
+    max-width: 100%;
   }
 
   .theme-control {
@@ -2267,7 +2337,6 @@ body:not(.style-executive-alumni):not(.style-modern-minimal) .site-menu a.active
 
   .nav-menu-area #menu,
   .nav-menu-area .site-menu {
-    justify-content: flex-start;
     padding-bottom: 2px;
   }
 
