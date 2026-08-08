@@ -178,6 +178,19 @@ export async function render() {
             </p>
           </div>
         </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">14. Πού μπορώ να κάνω αξιολόγηση για το Reunion50 και τον ιστότοπο;</summary>
+          <div class="faq-answer">
+            <p>
+              Στο κεντρικό μενού, κάτω από το <strong>«ΑΞΙΟΛΟΓΗΣΗ»</strong>, θα βρείτε δύο
+              ξεχωριστές φόρμες: <strong>«ΙΣΤΟΤΟΠΟΣ»</strong> για σχόλια σχετικά με την
+              ιστοσελίδα, και <strong>«REUNION50»</strong> για σχόλια σχετικά με την εκδήλωση
+              του Reunion50. Μπορείτε να συμπληρώσετε όποια από τις δύο σας ενδιαφέρει — ή και
+              τις δύο — και να τις υποβάλετε ανώνυμα αν το προτιμάτε.
+            </p>
+          </div>
+        </details>
       </div>
 
       <div class="faq-note">

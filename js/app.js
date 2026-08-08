@@ -1,6 +1,6 @@
 import { loadRoute } from './router.js';
 import { loadTexts } from './services/textService.js';
-import { getMenuItems } from './api/menuApi.js';
+import { getMenuItems, getSubMenuItems } from './api/menuApi.js';
 
 /**
  * Configuration
@@ -29,7 +29,14 @@ const FALLBACK_MENU = [
   { item: 'Ευρετήριο', url: 'directory' },
   { item: 'Δεξαμενή σκέψεων', url: 'thinktank' },
   { item: 'ΣΥΧΝΕΣ ΕΡΩΤΗΣΕΙΣ', url: 'faq' },
-  { item: 'Αξιολόγηση', url: 'evaluation' }
+  {
+    item: 'ΑΞΙΟΛΟΓΗΣΗ',
+    url: 'evaluation',
+    children: [
+      { item: 'ΙΣΤΟΤΟΠΟΣ', url: 'website-evaluation' },
+      { item: 'REUNION50', url: 'reunion-evaluation' }
+    ]
+  }
 ];
 
 /**
@@ -46,11 +53,54 @@ function normalizeRoute(url) {
 }
 
 /**
- * Close all open dropdown menus
+ * Close all open dropdown menus. The dropdown-menu itself is a direct
+ * child of <body> (see the "portal" comment in renderMenuRows below),
+ * so it's no longer a DOM descendant of its .has-dropdown <li> — both
+ * need their .open class cleared independently.
  */
 function closeAllDropdowns() {
   document.querySelectorAll('#menu .has-dropdown')
     .forEach(li => li.classList.remove('open'));
+
+  document.querySelectorAll('.dropdown-menu.open')
+    .forEach(dropdownMenu => dropdownMenu.classList.remove('open'));
+}
+
+/**
+ * Position a fixed-position dropdown menu directly below its toggle
+ * link, using viewport coordinates. .dropdown-menu is position:fixed
+ * AND moved to be a direct child of <body> — needed because nav has
+ * backdrop-filter, and any ancestor with transform/filter/backdrop-
+ * filter creates a new containing block for fixed-position descendants
+ * in modern browsers, silently making position:fixed relative to that
+ * ancestor instead of the viewport. Moving it out of nav entirely
+ * avoids this regardless of which ancestor property might trigger it.
+ */
+function positionDropdown(toggle, dropdownMenu) {
+  if (!toggle || !dropdownMenu) return;
+
+  const rect = toggle.getBoundingClientRect();
+  const menuWidth = dropdownMenu.offsetWidth || 220;
+
+  let left = rect.left + (rect.width / 2) - (menuWidth / 2);
+  left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+
+  dropdownMenu.style.top = `${rect.bottom + 6}px`;
+  dropdownMenu.style.left = `${left}px`;
+}
+
+/**
+ * Keep an open dropdown aligned with its toggle link while the page
+ * scrolls or the window resizes (since it's fixed to the viewport).
+ * The toggle reference is stashed directly on the dropdown-menu
+ * element at build time (see renderMenuRows), since DOM-nesting-based
+ * lookup no longer works once it's moved under <body>.
+ */
+function repositionOpenDropdown() {
+  const openDropdown = document.querySelector('.dropdown-menu.open');
+  if (!openDropdown) return;
+
+  positionDropdown(openDropdown._toggleEl, openDropdown);
 }
 
 /**
@@ -111,16 +161,28 @@ function renderMenuRows(rows) {
     return `<li role="none"><a href="#/${route}" role="menuitem">${row.item}</a></li>`;
   }).join('');
 
-  // Attach dropdown toggle events
+  // Attach dropdown toggle events. Each .dropdown-menu is moved to be
+  // a direct child of <body> — see the comment on positionDropdown()
+  // above for why (nav's backdrop-filter otherwise silently breaks
+  // position:fixed coordinates). The toggle reference is stashed as a
+  // plain JS property on the moved element, since it can no longer be
+  // found via DOM nesting once it's outside its original <li>.
   menu.querySelectorAll('.has-dropdown').forEach(li => {
     const toggle = li.querySelector('.dropdown-toggle');
-    if (toggle) {
+    const dropdownMenu = li.querySelector('.dropdown-menu');
+
+    if (toggle && dropdownMenu) {
+      dropdownMenu._toggleEl = toggle;
+      document.body.appendChild(dropdownMenu);
+
       toggle.addEventListener('click', (e) => {
-        const isOpen = li.classList.contains('open');
+        const isOpen = dropdownMenu.classList.contains('open');
         closeAllDropdowns();
         if (!isOpen) {
           e.preventDefault();
+          positionDropdown(toggle, dropdownMenu);
           li.classList.add('open');
+          dropdownMenu.classList.add('open');
         }
       });
     }
@@ -132,6 +194,11 @@ function renderMenuRows(rows) {
       closeAllDropdowns();
     }
   });
+
+  // Re-position any open dropdown on scroll/resize, since it's fixed
+  // relative to the viewport, not the (scrollable) nav item anymore.
+  window.addEventListener('scroll', repositionOpenDropdown, { passive: true });
+  window.addEventListener('resize', repositionOpenDropdown);
 
   setActiveMenuItem();
 }
@@ -145,10 +212,13 @@ async function renderMenu() {
 
   while (attempts <= CONFIG.maxMenuRetries) {
     try {
-      const items = await getMenuItems();
+      const [items, subItems] = await Promise.all([
+        getMenuItems(),
+        getSubMenuItems().catch(() => [])
+      ]);
 
       if (items?.length) {
-        renderMenuRows(items);
+        renderMenuRows(groupMenuWithChildren(items, subItems));
         return;
       }
 
@@ -165,6 +235,24 @@ async function renderMenu() {
 
   console.warn('All menu load attempts failed, using fallback');
   renderMenuRows(FALLBACK_MENU);
+}
+
+// Group flat sub-menu rows under their parent by matching ParentItem
+// against the parent's Item text — same convention already proven in
+// the admin app's buildAdminMenu()/subMap grouping.
+function groupMenuWithChildren(items, subItems) {
+  const subMap = new Map();
+
+  (subItems || []).forEach(subItem => {
+    const parentKey = subItem.parentItem;
+    if (!subMap.has(parentKey)) subMap.set(parentKey, []);
+    subMap.get(parentKey).push(subItem);
+  });
+
+  return items.map(item => {
+    const children = subMap.get(item.item);
+    return children?.length ? { ...item, children } : item;
+  });
 }
 
 // ─── Event Listeners ──────────────────────────────────────────────

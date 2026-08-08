@@ -19,6 +19,8 @@ const routes = {
   directory: () => import('./pages/directory.js'),
   faq: () => import('./pages/faq.js'),
   evaluation: () => import('./pages/evaluation.js'),
+  'website-evaluation': () => import('./pages/websiteevaluation.js'),
+  'reunion-evaluation': () => import('./pages/reunionevaluation.js'),
   thinktank: () => import('./pages/thinktank.js'),
   contact: () => import('./pages/contact.js')
 };

@@ -2010,6 +2010,53 @@ body:not(.style-executive-alumni):not(.style-modern-minimal) .site-menu a.active
   margin-bottom: 1.75rem;
 }
 
+.evaluation-hub-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.evaluation-hub-card {
+  display: block;
+  text-decoration: none;
+  background: rgba(245,237,216,0.055);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2rem 1.75rem;
+  transition: border-color .2s ease, transform .15s ease;
+}
+
+.evaluation-hub-card:hover {
+  border-color: var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.evaluation-hub-card-icon {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 0.9rem;
+}
+
+.evaluation-hub-card h3 {
+  font-family: var(--font-display);
+  color: var(--gold-light);
+  font-size: 1.35rem;
+  margin: 0 0 0.6rem;
+}
+
+.evaluation-hub-card p {
+  color: var(--parchment-dark);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .evaluation-hub-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 .evaluation-group {
   border: 1px solid rgba(201,168,76,.2);
   border-radius: 4px;
@@ -2523,26 +2570,23 @@ body:not(.style-executive-alumni):not(.style-modern-minimal) .site-menu a.active
 #menu .has-dropdown.open .dropdown-caret {
   transform: rotate(180deg);
 }
-#menu .dropdown-menu {
+.dropdown-menu {
   display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(13,27,42,0.97);
+  position: fixed;
+  background: var(--navy);
   border: 1px solid var(--border-strong);
   border-radius: 8px;
   min-width: 220px;
   padding: .4rem 0;
   list-style: none;
-  z-index: 200;
+  z-index: 500;
   box-shadow: 0 8px 32px rgba(0,0,0,.45);
   backdrop-filter: blur(12px);
 }
-#menu .has-dropdown.open .dropdown-menu {
+.dropdown-menu.open {
   display: block;
 }
-#menu .dropdown-menu li a {
+.dropdown-menu li a {
   display: block;
   padding: .55rem 1.2rem;
   color: var(--parchment);
@@ -2551,8 +2595,8 @@ body:not(.style-executive-alumni):not(.style-modern-minimal) .site-menu a.active
   white-space: nowrap;
   transition: background .15s, color .15s;
 }
-#menu .dropdown-menu li a:hover,
-#menu .dropdown-menu li a.active {
+.dropdown-menu li a:hover,
+.dropdown-menu li a.active {
   background: rgba(201,168,76,.12);
   color: var(--gold);
 }
@@ -3692,6 +3736,11 @@ body.style-modern-minimal nav {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(11, 31, 58, 0.08);
   box-shadow: 0 1px 0 rgba(11, 31, 58, 0.04);
+}
+
+body.style-modern-minimal .dropdown-menu {
+  background: rgba(247, 245, 240, 0.97);
+  border-color: rgba(11, 31, 58, 0.16);
 }
 
 
