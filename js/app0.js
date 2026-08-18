@@ -279,7 +279,6 @@ function initAuthWidget() {
   const welcomeText = document.getElementById('authWelcomeText');
   const emailInput = document.getElementById('authEmail');
   const passwordInput = document.getElementById('authPassword');
-  const toggleAuthPasswordBtn = document.getElementById('toggleAuthPasswordBtn');
   const loginBtn = document.getElementById('authLoginBtn');
   const logoutBtn = document.getElementById('authLogoutBtn');
   const messageEl = document.getElementById('authMessage');
@@ -380,15 +379,6 @@ function initAuthWidget() {
     logout();
     refreshAuthUI();
     closeFlyout();
-  });
-
-  // Show/hide toggle for the login password field — lets the member
-  // see what they're typing rather than only masked dots.
-  toggleAuthPasswordBtn?.addEventListener('click', () => {
-    const isShowing = passwordInput.type === 'text';
-    passwordInput.type = isShowing ? 'password' : 'text';
-    toggleAuthPasswordBtn.textContent = isShowing ? '👁' : '🙈';
-    toggleAuthPasswordBtn.setAttribute('aria-label', isShowing ? 'Εμφάνιση κωδικού' : 'Απόκρυψη κωδικού');
   });
 
   window.addEventListener('authchange', refreshAuthUI);

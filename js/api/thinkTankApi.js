@@ -1,27 +1,29 @@
 import { API_BASE } from "./apiConfig.js";
+import { getToken } from "../auth.js";
 
-export async function loginThinkTank(password) {
-  const response = await fetch(`${API_BASE}/api/thinktank/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ password })
-  });
+/**
+ * This module no longer performs its own login or stores its own token.
+ * Auth is entirely owned by the site-wide auth.js (JWT stored under
+ * "alumni1976AuthToken" in localStorage). Every authenticated call below
+ * reads that token via getToken() and sends it as:
+ * Authorization: Bearer <token>
+ */
 
-  const result = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  if (result?.error) {
-    throw new Error(result.error);
-  }
-
-  return result?.data || null;
+function authHeaders(extra = {}) {
+  const token = getToken();
+  const headers = { ...extra };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
 }
 
+async function parseJson(response) {
+  return await response.json().catch(() => null);
+}
+
+/**
+ * Public read endpoint (no JWT required).
+ * Backend: GET /api/thinktank/posts
+ */
 export async function getThinkTankPosts({
   offset = 0,
   limit = 10,
@@ -29,194 +31,165 @@ export async function getThinkTankPosts({
   memberId = null
 } = {}) {
   const params = new URLSearchParams();
-
   params.set("offset", String(offset));
   params.set("limit", String(limit));
   params.set("category", category || "all");
-
-  if (memberId) {
-    params.set("memberId", String(memberId));
-  }
+  if (memberId) params.set("memberId", String(memberId));
 
   const response = await fetch(`${API_BASE}/api/thinktank/posts?${params.toString()}`);
+  const result = await parseJson(response);
 
-  const result = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
   return result?.data || [];
 }
 
-export async function createThinkTankPost({ memberId, category, body, imageUrl = null }) {
-  const response = await fetch(`${API_BASE}/api/ForumModeration/submit-post`, {
+/**
+ * Member-facing create post (JWT required).
+ * Backend: POST /api/posts
+ * Body: { category, body, imageUrl }
+ */
+export async function createThinkTankPost({ category, body, imageUrl = null }) {
+  const response = await fetch(`${API_BASE}/api/posts`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      memberId,
-      category,
-      body,
-      imageUrl
-    })
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ category, body, imageUrl })
   });
 
-  const result = await response.json().catch(() => null);
+  const result = await parseJson(response);
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  // The controller returns { data, verdict, error } as siblings — thinktank.js
+  // reads result.verdict.score, so verdict must survive this call, not just data.
+  if (!result?.data) return null;
 
-  return result;
+  return { ...result.data, verdict: result.verdict };
 }
 
-export async function createThinkTankComment({ postId, memberId, commentText }) {
-  const response = await fetch(`${API_BASE}/api/ForumModeration/submit-comment`, {
+/**
+ * Member-facing create comment (JWT required).
+ * Backend: POST /api/postcomments
+ * Body: { postId, commentText }
+ */
+export async function createThinkTankComment({ postId, commentText }) {
+  const response = await fetch(`${API_BASE}/api/postcomments`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      postId,
-      memberId,
-      commentText
-    })
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ postId, commentText })
   });
 
-  const result = await response.json().catch(() => null);
+  const result = await parseJson(response);
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  // Same envelope shape as createThinkTankPost — data and verdict are
+  // siblings in the response, so verdict must be carried through here too.
+  if (!result?.data) return null;
 
-  return result;
+  return { ...result.data, verdict: result.verdict };
 }
 
-export async function likeThinkTankPost({ postId, memberId }) {
-  const response = await fetch(`${API_BASE}/api/thinktank/likes`, {
+/**
+ * Like a post (JWT required).
+ * Backend: POST /api/postlikes
+ * Body: { postId }
+ */
+export async function likeThinkTankPost({ postId }) {
+  const response = await fetch(`${API_BASE}/api/postlikes`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      postId,
-      memberId
-    })
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ postId })
   });
 
-  const result = await response.json().catch(() => null);
+  const result = await parseJson(response);
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
-  if (result?.error) {
-    throw new Error(result.error);
-  }
-
-  return result?.data || null;
+  // alreadyLiked distinguishes a genuine duplicate (still a 200, not an
+  // error) from a real failure, which the old code couldn't tell apart.
+  return {
+    data: result?.data || null,
+    alreadyLiked: result?.alreadyLiked === true
+  };
 }
 
-export async function updateOwnPost({ postId, memberId, password, body }) {
+/**
+ * Self edit post (JWT required).
+ * Backend: PUT /api/posts/{id}/self
+ * Body: { body }
+ */
+export async function updateOwnPost({ postId, body }) {
   const response = await fetch(`${API_BASE}/api/posts/${postId}/self`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ memberId, password, body })
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ body })
   });
 
-  const result = await response.json().catch(() => null);
+  const result = await parseJson(response);
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
   return result?.data || null;
 }
 
-export async function deleteOwnPost({ postId, memberId, password }) {
-  const params = new URLSearchParams({
-    memberId: String(memberId),
-    password
+/**
+ * Self delete post (JWT required).
+ * Backend: DELETE /api/posts/{id}/self
+ */
+export async function deleteOwnPost({ postId }) {
+  const response = await fetch(`${API_BASE}/api/posts/${postId}/self`, {
+    method: "DELETE",
+    headers: authHeaders()
   });
 
-  const response = await fetch(`${API_BASE}/api/posts/${postId}/self?${params.toString()}`, {
-    method: "DELETE"
-  });
+  const result = await parseJson(response);
 
-  const result = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
   return result?.data === true;
 }
 
-export async function updateOwnComment({ commentId, memberId, password, commentText }) {
+/**
+ * Self edit comment (JWT required).
+ * Backend: PUT /api/postcomments/{id}/self
+ * Body: { commentText }
+ */
+export async function updateOwnComment({ commentId, commentText }) {
   const response = await fetch(`${API_BASE}/api/postcomments/${commentId}/self`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ memberId, password, commentText })
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ commentText })
   });
 
-  const result = await response.json().catch(() => null);
+  const result = await parseJson(response);
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
   return result?.data || null;
 }
 
-export async function deleteOwnComment({ commentId, memberId, password }) {
-  const params = new URLSearchParams({
-    memberId: String(memberId),
-    password
+/**
+ * Self delete comment (JWT required).
+ * Backend: DELETE /api/postcomments/{id}/self
+ */
+export async function deleteOwnComment({ commentId }) {
+  const response = await fetch(`${API_BASE}/api/postcomments/${commentId}/self`, {
+    method: "DELETE",
+    headers: authHeaders()
   });
 
-  const response = await fetch(`${API_BASE}/api/postcomments/${commentId}/self?${params.toString()}`, {
-    method: "DELETE"
-  });
+  const result = await parseJson(response);
 
-  const result = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  if (result?.error) {
-    throw new Error(result.error);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (result?.error) throw new Error(result.error);
 
   return result?.data === true;
 }

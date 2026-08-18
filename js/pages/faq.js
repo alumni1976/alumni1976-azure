@@ -26,7 +26,25 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">2. Πώς μπορώ να δω τα στοιχεία ενός μέλους;</summary>
+          <summary class="faq-question">2. Τι σημαίνει «ΣΥΝΔΕΣΗ»;</summary>
+          <div class="faq-answer">
+            <p>
+              Το κουμπί <strong>«ΣΥΝΔΕΣΗ»</strong>, πάνω δεξιά σε κάθε σελίδα, είναι η είσοδος
+              στον προσωπικό σας λογαριασμό μέλους. Συνδεόμενοι με το email και τον κωδικό
+              πρόσβασής σας, αποκτάτε πρόσβαση σε όλες τις λειτουργίες του site που απαιτούν
+              ταυτοποίηση — για παράδειγμα να αναρτήσετε ή να σχολιάσετε στη
+              <strong>ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ</strong>, να δηλώσετε ότι σας αρέσει μια ανάρτηση, ή να
+              επεξεργαστείτε τα προσωπικά σας στοιχεία.
+            </p>
+            <p>
+              Μετά τη σύνδεση, το κουμπί δείχνει το όνομά σας· από εκεί μπορείτε επίσης να
+              μεταβείτε στα <strong>«Τα στοιχεία μου»</strong> ή να αποσυνδεθείτε.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">3. Πώς μπορώ να δω τα στοιχεία ενός μέλους;</summary>
           <div class="faq-answer">
             <p>
               Από τη σελίδα <strong>ΕΥΡΕΤΗΡΙΟ</strong> μπορείτε να επιλέξετε ένα μέλος και να δείτε
@@ -37,7 +55,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">3. Γιατί κάποια μέλη δεν έχουν φωτογραφία ή στοιχεία;</summary>
+          <summary class="faq-question">4. Γιατί κάποια μέλη δεν έχουν φωτογραφία ή στοιχεία;</summary>
           <div class="faq-answer">
             <p>
               Για ορισμένα μέλη δεν έχουμε ακόμη πλήρη στοιχεία ή διαθέσιμη φωτογραφία.
@@ -48,17 +66,50 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">4. Πώς μπορώ να διορθώσω ή να συμπληρώσω τα στοιχεία μου;</summary>
+          <summary class="faq-question">5. Πώς μπορώ να ενημερώσω τα στοιχεία μου;</summary>
           <div class="faq-answer">
             <p>
-              Μπορείτε να στείλετε μήνυμα μέσω της σελίδας <strong>ΕΠΙΚΟΙΝΩΝΙΑ</strong>
-              ή απευθείας στο email: <strong>alumni1976@gmail.com</strong>.
+              Αφού συνδεθείτε (δείτε την ερώτηση «Τι σημαίνει ΣΥΝΔΕΣΗ»), επιλέξτε
+              <strong>«Τα στοιχεία μου»</strong> από το μενού που ανοίγει κάνοντας κλικ στο όνομά
+              σας. Εκεί μπορείτε να ενημερώσετε το όνομα, το επώνυμο, το email, το τηλέφωνο,
+              τη διεύθυνση, την πόλη, τη χώρα, την ημερομηνία γέννησης και τυχόν σημειώσεις —
+              οι αλλαγές αποθηκεύονται άμεσα.
+            </p>
+            <p>
+              Για στοιχεία που δεν μπορείτε να αλλάξετε μόνοι σας από εκεί (π.χ. φωτογραφία
+              προφίλ, βιογραφικό ή άλλο υλικό), στείλτε μήνυμα μέσω της σελίδας
+              <strong>ΕΠΙΚΟΙΝΩΝΙΑ</strong> ή απευθείας στο email:
+              <strong>alumni1976@gmail.com</strong>.
             </p>
           </div>
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">5. Τι είναι η ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ;</summary>
+          <summary class="faq-question">6. Πώς αλλάζω τον κωδικό πρόσβασής μου;</summary>
+          <div class="faq-answer">
+            <p>
+              Στη σελίδα <strong>«Τα στοιχεία μου»</strong> (μετά τη σύνδεση) θα βρείτε
+              ξεχωριστή ενότητα <strong>«Αλλαγή κωδικού πρόσβασης»</strong>. Συμπληρώστε τον
+              τρέχοντα κωδικό σας και τον νέο κωδικό δύο φορές για επιβεβαίωση, και πατήστε
+              «Αλλαγή κωδικού». Ο νέος κωδικός ισχύει αμέσως από την επόμενη σύνδεσή σας.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">7. Τι κάνω αν ξέχασα τον κωδικό μου;</summary>
+          <div class="faq-answer">
+            <p>
+              Αν δεν θυμάστε τον κωδικό σας και δεν μπορείτε να συνδεθείτε για να τον αλλάξετε
+              μόνοι σας, επικοινωνήστε με την ομάδα διαχείρισης στο
+              <strong>alumni1976@gmail.com</strong>, ώστε να σας βοηθήσουμε να αποκτήσετε
+              ξανά πρόσβαση στον λογαριασμό σας.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">8. Τι είναι η ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ;</summary>
           <div class="faq-answer">
             <p>
               Η <strong>ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ</strong> είναι ένας χώρος ανταλλαγής απόψεων, ιδεών,
@@ -68,19 +119,23 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">6. Γιατί χρειάζεται password για τη ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ;</summary>
+          <summary class="faq-question">9. Χρειάζεται σύνδεση για να διαβάσω τη ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ;</summary>
           <div class="faq-answer">
             <p>
-              Η πρόσβαση στη <strong>ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ</strong> προστατεύεται με password,
-              ώστε ο χώρος να παραμένει ιδιωτικός και να χρησιμοποιείται μόνο από μέλη
-              της κοινότητας. Όποιος δεν έχει ή δεν θυμάται το password του μπορεί να το ζητήσει
-              από τον διαχειριστή μέσω email.
+              Όχι. Η ανάγνωση των αναρτήσεων και των σχολίων είναι ελεύθερη σε όλους, χωρίς να
+              χρειάζεται σύνδεση.
+            </p>
+            <p>
+              Για να αναρτήσετε δική σας σκέψη, να σχολιάσετε ή να δηλώσετε «μου αρέσει» σε μια
+              ανάρτηση, χρειάζεται να συνδεθείτε μέσω του κουμπιού <strong>ΣΥΝΔΕΣΗ</strong> στο
+              πάνω μέρος της σελίδας — του ίδιου λογαριασμού που χρησιμοποιείται σε όλο το site,
+              όχι ενός ξεχωριστού κωδικού μόνο για τη Δεξαμενή Σκέψεων.
             </p>
           </div>
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">7. Τα μηνύματα στη ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ εμφανίζονται αμέσως;</summary>
+          <summary class="faq-question">10. Τα μηνύματα στη ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ εμφανίζονται αμέσως;</summary>
           <div class="faq-answer">
             <p>
               Κάθε νέα ανάρτηση και κάθε σχόλιο αξιολογείται αυτόματα με τη βοήθεια
@@ -97,7 +152,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">8. Μπορώ να επεξεργαστώ ή να διαγράψω μια ανάρτηση/σχόλιο μου;</summary>
+          <summary class="faq-question">11. Μπορώ να επεξεργαστώ ή να διαγράψω μια ανάρτηση/σχόλιο μου;</summary>
           <div class="faq-answer">
             <p>
               Ναι. Δίπλα σε κάθε δική σας ανάρτηση ή σχόλιο στη <strong>ΔΕΞΑΜΕΝΗ ΣΚΕΨΕΩΝ</strong>
@@ -114,7 +169,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">9. Πώς δηλώνω συμμετοχή σε εκδήλωση;</summary>
+          <summary class="faq-question">12. Πώς δηλώνω συμμετοχή σε εκδήλωση;</summary>
           <div class="faq-answer">
             <p>
               Από τη σελίδα <strong>ΕΚΔΗΛΩΣΕΙΣ</strong> μπορείτε να δείτε τις διαθέσιμες εκδηλώσεις
@@ -124,7 +179,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">10. Μπορώ να στείλω φωτογραφίες ή άλλο υλικό;</summary>
+          <summary class="faq-question">13. Μπορώ να στείλω φωτογραφίες ή άλλο υλικό;</summary>
           <div class="faq-answer">
             <p>
               Ναι. Μπορείτε να στείλετε φωτογραφίες, βιογραφικά ή άλλο σχετικό υλικό στην ομάδα
@@ -135,7 +190,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">11. Γιατί εμφανίζεται η ένδειξη «Στη μνήμη» σε ορισμένα μέλη;</summary>
+          <summary class="faq-question">14. Γιατί εμφανίζεται η ένδειξη «Στη μνήμη» σε ορισμένα μέλη;</summary>
           <div class="faq-answer">
             <p>
               Η ένδειξη αυτή χρησιμοποιείται με σεβασμό για συμφοιτητές μας που δεν είναι πια κοντά μας,
@@ -145,7 +200,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">12. Τι είναι το ΣΤΥΛ;</summary>
+          <summary class="faq-question">15. Τι είναι το ΣΤΥΛ;</summary>
           <div class="faq-answer">
             <p>
               Το <strong>ΣΤΥΛ</strong> είναι η επιλογή εμφάνισης του site. Από το σχετικό πεδίο
@@ -169,7 +224,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">13. Σχετικά με το 50th Reunion</summary>
+          <summary class="faq-question">16. Σχετικά με το 50th Reunion</summary>
           <div class="faq-answer">
             <p>
               Μέσω του συνδέσμου <a href="#/reunion"><strong>50th Reunion</strong></a> παρουσιάζεται υλικό
@@ -180,7 +235,7 @@ export async function render() {
         </details>
 
         <details class="faq-item">
-          <summary class="faq-question">14. Πού μπορώ να κάνω αξιολόγηση για το Reunion50 και τον ιστότοπο;</summary>
+          <summary class="faq-question">17. Πού μπορώ να κάνω αξιολόγηση για το Reunion50 και τον ιστότοπο;</summary>
           <div class="faq-answer">
             <p>
               Στο κεντρικό μενού, κάτω από το <strong>«ΑΞΙΟΛΟΓΗΣΗ»</strong>, θα βρείτε δύο

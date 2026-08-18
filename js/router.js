@@ -1,4 +1,5 @@
 import { getText } from './services/textService.js';
+import { logPageHit } from './analytics.js';
 
 /**
  * Route configuration — maps URL paths to page modules
@@ -22,6 +23,7 @@ const routes = {
   'website-evaluation': () => import('./pages/websiteevaluation.js'),
   'reunion-evaluation': () => import('./pages/reunionevaluation.js'),
   thinktank: () => import('./pages/thinktank.js'),
+  profile: () => import('./pages/profile.js'),
   contact: () => import('./pages/contact.js')
 };
 
@@ -255,6 +257,10 @@ export async function loadRoute() {
         // Don't show error to user — page already rendered
       }
     }
+
+    // Fire-and-forget page hit logging — never awaited, never allowed
+    // to affect the page if it fails (see analytics.js).
+    logPageHit(path);
 
     // Scroll to top on route change
     if (window.scrollY > 0) {

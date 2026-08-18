@@ -30,7 +30,7 @@
     onload="this.media='all'"
   />
 
-  <link rel="stylesheet" href="./css/styles.css?v=1.0.11">
+  <link rel="stylesheet" href="./css/styles.css?v=1.0.12">
 </head>
 
 <body>
@@ -62,8 +62,43 @@
           <option value="style-modern-minimal">Modern Minimal</option>
         </select>
       </div>
+
+      <button id="authToggleBtn" type="button" class="auth-toggle-btn" aria-haspopup="true">
+        <span id="authToggleLabel">Σύνδεση</span>
+      </button>
     </div>
   </nav>
+
+  <div class="auth-flyout hidden" id="authFlyout">
+    <div id="authFlyoutLoggedOut">
+      <p class="auth-flyout-note">
+        Η περιήγηση είναι ελεύθερη σε όλους. Συνδεθείτε για να αναρτήσετε, να σχολιάσετε ή να επεξεργαστείτε τα στοιχεία σας.
+      </p>
+
+      <label class="auth-field-label">
+        Email
+        <input type="email" id="authEmail" class="thinktank-input" autocomplete="email">
+      </label>
+
+      <label class="auth-field-label">
+        Κωδικός
+        <div class="password-field-wrap" style="position:relative;">
+          <input type="password" id="authPassword" class="thinktank-input" autocomplete="current-password" style="padding-right:40px;">
+          <button type="button" id="toggleAuthPasswordBtn" aria-label="Εμφάνιση κωδικού" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; line-height:1;">👁</button>
+        </div>
+      </label>
+
+      <button id="authLoginBtn" class="btn-primary thinktank-button">Σύνδεση</button>
+
+      <p id="authMessage" class="thinktank-message"></p>
+    </div>
+<div id="authFlyoutLoggedIn" class="hidden">
+  <p id="authWelcomeText" class="auth-flyout-note"></p>
+  <a href="#/profile" id="authProfileLink" class="btn-outline" style="display:block; text-align:center; margin-bottom:8px;">Τα στοιχεία μου</a>
+  <button id="authLogoutBtn" class="btn-outline">Αποσύνδεση</button>
+</div>
+    
+  </div>
 
   <main id="app" aria-live="polite">
     <div class="loading" role="status" aria-label="Φόρτωση περιεχομένου">
@@ -100,7 +135,7 @@
   </footer>
 
   <!-- Module scripts - loaded with type="module" -->
-  <script type="module" src="./js/app.js?v=1.0.5"></script>
+  <script type="module" src="./js/app.js?v=1.0.7"></script>
   <script type="module" src="./js/theme-selector.js?v=1.0.2"></script>
 
 </body>

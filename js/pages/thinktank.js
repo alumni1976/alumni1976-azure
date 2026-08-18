@@ -1,5 +1,4 @@
 import {
-  loginThinkTank,
   getThinkTankPosts,
   createThinkTankPost,
   createThinkTankComment,
@@ -10,6 +9,9 @@ import {
   deleteOwnComment
 } from "../api/thinkTankApi.js";
 
+// Site-wide auth (replaces the page's own login/session handling).
+import { getCurrentUser, isLoggedIn } from "../auth.js";
+
 import {
   getText,
   formatText
@@ -18,7 +20,6 @@ import {
 const POSTS_PAGE_SIZE = 10;
 
 let currentMember = null;
-let currentPassword = null;
 let currentOffset = 0;
 let allPostsLoaded = false;
 let currentCategoryFilter = "all";
@@ -92,7 +93,42 @@ function formatDate(dateValue) {
   return date.toLocaleDateString("el-GR");
 }
 
+// Opens the global site login (nav flyout) instead of a page-local login box.
+function promptLogin() {
+  const flyout = document.getElementById("authFlyout");
+  const toggleBtn = document.getElementById("authToggleBtn");
+
+  if (flyout?.classList.contains("hidden")) {
+    toggleBtn?.click();
+  }
+
+  flyout?.scrollIntoView({ behavior: "smooth", block: "center" });
+  document.getElementById("authEmail")?.focus();
+}
+
+function updateNewPostVisibility() {
+  const card = document.getElementById("newPostCard");
+  if (card) {
+    card.style.display = currentMember ? "" : "none";
+  }
+
+  const ownOnlyWrap = document.getElementById("ownOnlyFilterWrap");
+  if (ownOnlyWrap) {
+    ownOnlyWrap.style.display = currentMember ? "flex" : "none";
+
+    if (!currentMember) {
+      const ownOnlyCheckbox = document.getElementById("ownOnlyFilter");
+      if (ownOnlyCheckbox && ownOnlyCheckbox.checked) {
+        ownOnlyCheckbox.checked = false;
+        currentOwnOnly = false;
+      }
+    }
+  }
+}
+
 export async function render() {
+  currentMember = isLoggedIn() ? getCurrentUser() : null;
+
   return `
     <style>
       .thinktank-post-body {
@@ -139,58 +175,21 @@ export async function render() {
 
       <p>${getText(
         "thinktank.pageDescription",
-        "Η σελίδα αυτή είναι διαθέσιμη μόνο σε εξουσιοδοτημένα μέλη των αποφοίτων του 1976."
+        "Η σελίδα αυτή είναι διαθέσιμη για αναρτήσεις και σχόλια μόνο σε εξουσιοδοτημένα μέλη των αποφοίτων του 1976."
+      )}</p>
+
+      <p>${getText(
+        "thinktank.loginToPostHint",
+        "Συνδεθείτε για να αναρτήσετε μια σκέψη ή ένα σχόλιο."
       )}</p>
     </div>
 
     <main class="thinktank-main">
 
-      <section class="thinktank-login" id="thinktankLoginBox">
-        <article class="thinktank-card">
-          <div class="section-tag">${getText("thinktank.memberAccessTag", "ΠΡΟΣΒΑΣΗ ΜΕΛΟΥΣ")}</div>
+      <section class="thinktank-content">
 
-          <h2>${getText("thinktank.loginTitle", "Είσοδος στη Δεξαμενή Σκέψεων")}</h2>
-
-          <p>${getText(
-            "thinktank.loginDescription",
-            "Πληκτρολογήστε τον προσωπικό κωδικό που σας έχει δοθεί από τον διαχειριστή."
-          )}</p>
-
-          <input
-            id="thinktankPassword"
-            type="password"
-            class="thinktank-input"
-            placeholder="${getText("thinktank.passwordPlaceholder", "Κωδικός πρόσβασης")}"
-          >
-
-          <button id="thinktankLoginBtn" class="btn-primary thinktank-button">
-            ${getText("thinktank.loginButton", "Είσοδος")}
-          </button>
-
-          <p id="thinktankLoginMessage" class="thinktank-message"></p>
-        </article>
-      </section>
-
-      <section class="thinktank-private hidden" id="thinktankPrivateArea">
-
-        <article class="thinktank-card">
-          <div class="section-tag">${getText("thinktank.welcomeTag", "ΚΑΛΩΣ ΗΡΘΑΤΕ")}</div>
-
-          <h2 id="thinktankWelcome">${getText("thinktank.welcomeDefault", "Δεξαμενή Σκέψεων")}</h2>
-
-          <p>${getText(
-            "thinktank.privateAreaDescription",
-            "Μπορείτε να γράψετε νέα ανάρτηση, να κάνετε σχόλια και να δηλώσετε ότι σας αρέσει μια δημοσίευση."
-          )}</p>
-
-          <button id="thinktankLogoutBtn" class="btn-outline">
-            ${getText("thinktank.logoutButton", "Αποσύνδεση")}
-          </button>
-        </article>
-
-        <article class="thinktank-card">
+        <article class="thinktank-card" id="newPostCard" style="${currentMember ? "" : "display:none;"}">
           <div class="section-tag">${getText("thinktank.newPostTag", "ΝΕΑ ΑΝΑΡΤΗΣΗ")}</div>
-
           <h2>${getText("thinktank.newPostTitle", "Υποβολή σκέψης")}</h2>
 
           <select id="postCategory" class="thinktank-input">
@@ -226,7 +225,7 @@ export async function render() {
               <option value="career">${getText("thinktank.categoryCareer", "Πανεπιστήμιο & επάγγελμα")}</option>
             </select>
 
-            <label style="display:flex; align-items:center; gap:6px;">
+            <label style="${currentMember ? "display:flex; align-items:center; gap:6px;" : "display:none;"}" id="ownOnlyFilterWrap">
               <input type="checkbox" id="ownOnlyFilter">
               ${getText("thinktank.ownPostsOnly", "Μόνο οι δικές μου αναρτήσεις")}
             </label>
@@ -250,209 +249,137 @@ export async function render() {
 }
 
 export async function afterRender() {
-  const savedMember = sessionStorage.getItem("thinktankMember");
-  const savedPassword = sessionStorage.getItem("thinktankPassword");
+  currentMember = isLoggedIn() ? getCurrentUser() : null;
+  document.body.classList.toggle("thinktank-connected", !!currentMember);
+  updateNewPostVisibility();
 
-  if (savedMember) {
-    try {
-      currentMember = JSON.parse(savedMember);
-      currentPassword = savedPassword || null;
-      openPrivateArea();
-      await resetAndLoadPosts();
-    } catch {
-      sessionStorage.removeItem("thinktankMember");
-      sessionStorage.removeItem("thinktankPassword");
-      currentMember = null;
-      currentPassword = null;
-    }
+  // Posts are public — load them regardless of login state.
+  await resetAndLoadPosts();
+
+  // React to login/logout happening elsewhere on the site (e.g. the global
+  // nav flyout) while the user is sitting on this page.
+  if (!window.__thinktankAuthListenerBound) {
+    window.addEventListener("authchange", handleAuthChange);
+    window.__thinktankAuthListenerBound = true;
   }
 
-  const loginBtn = document.getElementById("thinktankLoginBtn");
-  const passwordInput = document.getElementById("thinktankPassword");
-  const loginMessage = document.getElementById("thinktankLoginMessage");
+  // Submit post button
+  const submitBtn = document.getElementById("submitPostBtn");
+  if (submitBtn) {
+    submitBtn.addEventListener("click", async () => {
+      const submitButton = document.getElementById("submitPostBtn");
+      const postMessage = document.getElementById("postMessage");
+      const postBody = document.getElementById("postBody");
+      const category = document.getElementById("postCategory").value;
+      const body = postBody.value.trim();
 
-  loginBtn?.addEventListener("click", async () => {
-    const password = passwordInput.value.trim();
-
-    if (!password) {
-      loginMessage.textContent = getText(
-        "thinktank.passwordRequired",
-        "Παρακαλώ πληκτρολογήστε κωδικό."
-      );
-      return;
-    }
-
-    loginMessage.textContent = getText(
-      "thinktank.checkingPassword",
-      "Έλεγχος κωδικού..."
-    );
-
-    try {
-      const member = await loginThinkTank(password);
-
-      if (!member) {
-        loginMessage.textContent = getText(
-          "thinktank.invalidLogin",
-          "Λάθος κωδικός ή μη ενεργό μέλος."
+      if (!currentMember) {
+        postMessage.textContent = getText(
+          "thinktank.loginRequired",
+          "Πρέπει πρώτα να γίνει είσοδος."
         );
         return;
       }
 
-      currentMember = member;
-      currentPassword = password;
-
-      sessionStorage.setItem(
-        "thinktankMember",
-        JSON.stringify(currentMember)
-      );
-
-      sessionStorage.setItem("thinktankPassword", currentPassword);
-
-      openPrivateArea();
-      await resetAndLoadPosts();
-
-    } catch (err) {
-      console.error("ThinkTank login error:", err);
-
-      loginMessage.textContent = getText(
-        "thinktank.invalidLogin",
-        "Λάθος κωδικός ή μη ενεργό μέλος."
-      );
-    }
-  });
-
-  document.getElementById("submitPostBtn")?.addEventListener("click", async () => {
-    const submitButton = document.getElementById("submitPostBtn");
-    const postMessage = document.getElementById("postMessage");
-    const postBody = document.getElementById("postBody");
-    const category = document.getElementById("postCategory").value;
-    const body = postBody.value.trim();
-
-    if (!currentMember) {
-      postMessage.textContent = getText(
-        "thinktank.loginRequired",
-        "Πρέπει πρώτα να γίνει είσοδος."
-      );
-      return;
-    }
-
-    if (!body) {
-      postMessage.textContent = getText(
-        "thinktank.emptyPost",
-        "Η ανάρτηση δεν μπορεί να είναι κενή."
-      );
-      return;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = getText(
-      "thinktank.aiEvaluatingPost",
-      "Γίνεται αξιολόγηση από AI..."
-    );
-
-    postMessage.textContent = getText(
-      "thinktank.aiEvaluationWait",
-      "Παρακαλώ περιμένετε μέχρι να ολοκληρωθεί η αξιολόγηση."
-    );
-
-    try {
-      const result = await createThinkTankPost({
-        memberId: currentMember.id,
-        category,
-        body,
-        imageUrl: null
-      });
-
-      postBody.value = "";
-
-      const score = Number(result?.verdict?.score ?? 0);
-      const sensitive = result?.verdict?.is_sensitive === true;
-
-      if (score >= 8 && !sensitive) {
+      if (!body) {
         postMessage.textContent = getText(
-          "thinktank.postApproved",
-          "Η ανάρτηση εγκρίθηκε από το AI και δημοσιεύτηκε."
+          "thinktank.emptyPost",
+          "Η ανάρτηση δεν μπορεί να είναι κενή."
         );
-
-        await resetAndLoadPosts();
-      } else if (score <= 3 || sensitive) {
-        postMessage.textContent = getText(
-          "thinktank.postRejected",
-          "Η ανάρτηση απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε."
-        );
-      } else {
-        postMessage.textContent = getText(
-          "thinktank.postPending",
-          "Η ανάρτηση καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή."
-        );
+        return;
       }
 
-    } catch (err) {
-      console.error("ThinkTank post error:", err);
-
-      postMessage.textContent =
-        err?.message ||
-        getText("thinktank.postSaveError", "Αποτυχία αποθήκευσης.");
-    } finally {
-      submitButton.disabled = false;
+      submitButton.disabled = true;
       submitButton.textContent = getText(
-        "thinktank.submitPostButton",
-        "Υποβολή για έγκριση"
+        "thinktank.aiEvaluatingPost",
+        "Γίνεται αξιολόγηση από το σύστημα τεχνητής νοημοσύνης (AI)..."
       );
-    }
-  });
 
-  document.getElementById("loadMorePostsBtn")?.addEventListener("click", async () => {
-    await loadApprovedPosts(false);
-  });
+      postMessage.textContent = getText(
+        "thinktank.aiEvaluationWait",
+        "Παρακαλώ περιμένετε μέχρι να ολοκληρωθεί η αξιολόγηση."
+      );
 
-  document.getElementById("categoryFilter")?.addEventListener("change", async event => {
-    currentCategoryFilter = event.target.value;
-    await resetAndLoadPosts();
-  });
+      try {
+        const result = await createThinkTankPost({
+          category,
+          body,
+          imageUrl: null
+        });
 
-  document.getElementById("ownOnlyFilter")?.addEventListener("change", async event => {
-    currentOwnOnly = event.target.checked;
-    await resetAndLoadPosts();
-  });
+        postBody.value = "";
 
-  document.getElementById("thinktankLogoutBtn")?.addEventListener("click", () => {
-    sessionStorage.removeItem("thinktankMember");
-    sessionStorage.removeItem("thinktankPassword");
+        const score = Number(result?.verdict?.score ?? 0);
+        const sensitive = result?.verdict?.is_sensitive === true;
 
-    currentMember = null;
-    currentPassword = null;
-    currentOffset = 0;
-    allPostsLoaded = false;
-    currentCategoryFilter = "all";
-    currentOwnOnly = false;
+        if (score >= 8 && !sensitive) {
+          postMessage.textContent = getText(
+            "thinktank.postApproved",
+            "Η ανάρτηση εγκρίθηκε από το σύστημα τεχνητής νοημοσύνης (AI) και δημοσιεύτηκε."
+          );
+          await resetAndLoadPosts();
+        } else if (score <= 3 || sensitive) {
+          postMessage.textContent = getText(
+            "thinktank.postRejected",
+            "Η ανάρτηση απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε."
+          );
+        } else {
+          postMessage.textContent = getText(
+            "thinktank.postPending",
+            "Η ανάρτηση καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή."
+          );
+        }
 
-    document.getElementById("thinktankPrivateArea")?.classList.add("hidden");
-    document.getElementById("thinktankLoginBox")?.classList.remove("hidden");
+      } catch (err) {
+        console.error("ThinkTank post error:", err);
+        postMessage.textContent =
+          err?.message ||
+          getText("thinktank.postSaveError", "Αποτυχία αποθήκευσης.");
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = getText(
+          "thinktank.submitPostButton",
+          "Υποβολή για έγκριση"
+        );
+      }
+    });
+  }
 
-    const passwordInput = document.getElementById("thinktankPassword");
-    const loginMessage = document.getElementById("thinktankLoginMessage");
+  // Load more posts
+  const loadMoreBtn = document.getElementById("loadMorePostsBtn");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", async () => {
+      await loadApprovedPosts(false);
+    });
+  }
 
-    if (passwordInput) passwordInput.value = "";
-    if (loginMessage) loginMessage.textContent = "";
-  });
+  // Category filter
+  const categoryFilter = document.getElementById("categoryFilter");
+  if (categoryFilter) {
+    categoryFilter.addEventListener("change", async event => {
+      currentCategoryFilter = event.target.value;
+      await resetAndLoadPosts();
+    });
+  }
+
+  // Own only filter
+  const ownOnlyFilter = document.getElementById("ownOnlyFilter");
+  if (ownOnlyFilter) {
+    ownOnlyFilter.addEventListener("change", async event => {
+      currentOwnOnly = event.target.checked;
+      await resetAndLoadPosts();
+    });
+  }
+
 }
 
-function openPrivateArea() {
-  document.getElementById("thinktankLoginBox")?.classList.add("hidden");
-  document.getElementById("thinktankPrivateArea")?.classList.remove("hidden");
-
-  const welcome = document.getElementById("thinktankWelcome");
-
-  if (welcome && currentMember) {
-
-  const vocativeName =
-    `${currentMember.vocativeFirstName || currentMember.firstName || ""} ${
-      currentMember.vocativeLastName || currentMember.lastName || ""
-    }`.trim();
-
-  welcome.textContent = `Καλώς ήρθες, ${vocativeName}`;
-}
+// Called when auth.js dispatches "authchange" (login/logout from the
+// global nav) while the user is on this page.
+async function handleAuthChange() {
+  currentMember = isLoggedIn() ? getCurrentUser() : null;
+  document.body.classList.toggle("thinktank-connected", !!currentMember);
+  updateNewPostVisibility();
+  await resetAndLoadPosts();
 }
 
 async function resetAndLoadPosts() {
@@ -460,7 +387,6 @@ async function resetAndLoadPosts() {
   allPostsLoaded = false;
 
   const postsList = document.getElementById("postsList");
-
   if (postsList) {
     postsList.innerHTML = "";
   }
@@ -486,7 +412,7 @@ async function loadApprovedPosts(isFirstLoad = false) {
       offset: currentOffset,
       limit: POSTS_PAGE_SIZE,
       category: currentCategoryFilter,
-      memberId: currentOwnOnly && currentMember ? currentMember.id : null
+      memberId: currentOwnOnly && currentMember ? currentMember.memberId : null
     });
 
     if (!posts || posts.length === 0) {
@@ -519,7 +445,6 @@ async function loadApprovedPosts(isFirstLoad = false) {
 
     if (posts.length < POSTS_PAGE_SIZE) {
       allPostsLoaded = true;
-
       if (loadMoreWrap) {
         loadMoreWrap.style.display = "none";
       }
@@ -531,7 +456,6 @@ async function loadApprovedPosts(isFirstLoad = false) {
 
   } catch (err) {
     console.error("ThinkTank posts loading error:", err);
-
     postsList.innerHTML = `<p>${getText(
       "thinktank.postsLoadError",
       "Αποτυχία φόρτωσης αναρτήσεων."
@@ -548,7 +472,7 @@ function renderPost(post) {
 
   const comments = Array.isArray(post.comments) ? post.comments : [];
   const likesCount = Number(post.likesCount || 0);
-  const isOwnPost = currentMember && Number(post.memberId) === Number(currentMember.id);
+  const isOwnPost = currentMember && Number(post.memberId) === Number(currentMember.memberId);
 
   return `
     <article class="thinktank-post" data-post-id="${post.id}">
@@ -594,13 +518,23 @@ function renderPost(post) {
       ` : ""}
 
       <div class="post-actions">
-        <button class="thinktank-action like-btn" data-post-id="${post.id}">
-          ${formatText(
-            "thinktank.likeButton",
-            { count: likesCount },
-            `❤️ Μου αρέσει (${likesCount})`
-          )}
-        </button>
+        ${currentMember ? `
+          <button class="thinktank-action like-btn" data-post-id="${post.id}">
+            ${formatText(
+              "thinktank.likeButton",
+              { count: likesCount },
+              `❤️ Μου αρέσει (${likesCount})`
+            )}
+          </button>
+        ` : `
+          <button class="thinktank-action locked-action-btn" type="button">
+            ${formatText(
+              "thinktank.likeButtonLocked",
+              { count: likesCount },
+              `❤️ Μου αρέσει (${likesCount})`
+            )}
+          </button>
+        `}
 
         <span>${formatText(
           "thinktank.commentsCount",
@@ -615,17 +549,21 @@ function renderPost(post) {
         </div>
       ` : ""}
 
-      <div class="thinktank-comment-form">
-        <input
-          class="thinktank-input comment-input"
-          data-post-id="${post.id}"
-          placeholder="${getText("thinktank.commentPlaceholder", "Γράψτε σχόλιο...")}"
-        >
+      ${currentMember ? `
+        <div class="thinktank-comment-form">
+          <input
+            class="thinktank-input comment-input"
+            data-post-id="${post.id}"
+            placeholder="${getText("thinktank.commentPlaceholder", "Γράψτε σχόλιο...")}"
+          >
 
-        <button class="btn-outline comment-btn" data-post-id="${post.id}">
-          ${getText("thinktank.submitCommentButton", "Υποβολή σχολίου")}
-        </button>
-      </div>
+          <button class="btn-outline comment-btn" data-post-id="${post.id}">
+            ${getText("thinktank.submitCommentButton", "Υποβολή σχολίου")}
+          </button>
+
+          <p class="thinktank-message comment-message" data-post-id="${post.id}"></p>
+        </div>
+      ` : ""}
     </article>
   `;
 }
@@ -637,7 +575,7 @@ function renderComment(comment) {
     photoLink: comment.photoLink
   };
 
-  const isOwnComment = currentMember && Number(comment.memberId) === Number(currentMember.id);
+  const isOwnComment = currentMember && Number(comment.memberId) === Number(currentMember.memberId);
 
   return `
     <div class="thinktank-comment" data-comment-id="${comment.id}">
@@ -720,6 +658,14 @@ function attachPostEvents() {
     });
   });
 
+  document.querySelectorAll(".locked-action-btn").forEach(button => {
+    if (button.dataset.bound === "true") return;
+
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", promptLogin);
+  });
+
   document.querySelectorAll(".comment-btn").forEach(button => {
     if (button.dataset.bound === "true") return;
 
@@ -741,7 +687,7 @@ function attachPostEvents() {
       button.disabled = true;
       button.textContent = getText(
         "thinktank.aiEvaluatingComment",
-        "Αξιολόγηση AI..."
+        "Γίνεται αξιολόγηση από το σύστημα τεχνητής νοημοσύνης (AI)..."
       );
 
       try {
@@ -862,7 +808,7 @@ function toggleEditForm(kind, id, show) {
 }
 
 async function saveEditedPost(postId, button) {
-  if (!currentMember || !currentPassword) return;
+  if (!currentMember) return;
 
   const textarea = document.querySelector(
     `.edit-post-textarea[data-post-id="${postId}"]`
@@ -878,13 +824,11 @@ async function saveEditedPost(postId, button) {
   }
 
   button.disabled = true;
-  button.textContent = getText("thinktank.aiEvaluatingComment", "Αξιολόγηση AI...");
+  button.textContent = getText("thinktank.aiEvaluatingComment", "Γίνεται αξιολόγηση από το σύστημα τεχνητής νοημοσύνης (AI)...");
 
   try {
     const updated = await updateOwnPost({
       postId,
-      memberId: currentMember.id,
-      password: currentPassword,
       body
     });
 
@@ -917,7 +861,7 @@ async function saveEditedPost(postId, button) {
 }
 
 async function deletePostHandler(postId, button) {
-  if (!currentMember || !currentPassword) return;
+  if (!currentMember) return;
 
   const confirmed = confirm(getText(
     "thinktank.confirmDeletePost",
@@ -929,28 +873,20 @@ async function deletePostHandler(postId, button) {
   button.disabled = true;
 
   try {
-    await deleteOwnPost({
-      postId,
-      memberId: currentMember.id,
-      password: currentPassword
-    });
-
+    await deleteOwnPost({ postId });
     await resetAndLoadPosts();
-
   } catch (err) {
     console.error("ThinkTank post delete error:", err);
-
     alert(
       err?.message ||
       getText("thinktank.postDeleteError", "Αποτυχία διαγραφής ανάρτησης.")
     );
-
     button.disabled = false;
   }
 }
 
 async function saveEditedComment(commentId, button) {
-  if (!currentMember || !currentPassword) return;
+  if (!currentMember) return;
 
   const textarea = document.querySelector(
     `.edit-comment-textarea[data-comment-id="${commentId}"]`
@@ -966,13 +902,11 @@ async function saveEditedComment(commentId, button) {
   }
 
   button.disabled = true;
-  button.textContent = getText("thinktank.aiEvaluatingComment", "Αξιολόγηση AI...");
+  button.textContent = getText("thinktank.aiEvaluatingComment", "Γίνεται αξιολόγηση από το σύστημα τεχνητής νοημοσύνης (AI)...");
 
   try {
     const updated = await updateOwnComment({
       commentId,
-      memberId: currentMember.id,
-      password: currentPassword,
       commentText
     });
 
@@ -1005,7 +939,7 @@ async function saveEditedComment(commentId, button) {
 }
 
 async function deleteCommentHandler(commentId, button) {
-  if (!currentMember || !currentPassword) return;
+  if (!currentMember) return;
 
   const confirmed = confirm(getText(
     "thinktank.confirmDeleteComment",
@@ -1017,22 +951,14 @@ async function deleteCommentHandler(commentId, button) {
   button.disabled = true;
 
   try {
-    await deleteOwnComment({
-      commentId,
-      memberId: currentMember.id,
-      password: currentPassword
-    });
-
+    await deleteOwnComment({ commentId });
     await resetAndLoadPosts();
-
   } catch (err) {
     console.error("ThinkTank comment delete error:", err);
-
     alert(
       err?.message ||
       getText("thinktank.commentDeleteError", "Αποτυχία διαγραφής σχολίου.")
     );
-
     button.disabled = false;
   }
 }
@@ -1041,19 +967,22 @@ async function likePost(postId) {
   if (!currentMember) return;
 
   try {
-    await likeThinkTankPost({
-      postId,
-      memberId: currentMember.id
-    });
+    const result = await likeThinkTankPost({ postId });
+
+    if (result?.alreadyLiked) {
+      alert(getText(
+        "thinktank.alreadyLiked",
+        "Έχετε ήδη δηλώσει ότι σας αρέσει αυτή η ανάρτηση."
+      ));
+      return;
+    }
 
     await resetAndLoadPosts();
-
   } catch (err) {
     console.error("ThinkTank like error:", err);
-
     alert(getText(
-      "thinktank.alreadyLiked",
-      "Έχετε ήδη δηλώσει ότι σας αρέσει αυτή η ανάρτηση."
+      "thinktank.likeError",
+      "Αποτυχία καταχώρησης \"μου αρέσει\"."
     ));
   }
 }
@@ -1061,10 +990,13 @@ async function likePost(postId) {
 async function addComment(postId, commentText) {
   if (!currentMember) return false;
 
+  const messageEl = document.querySelector(
+    `.comment-message[data-post-id="${postId}"]`
+  );
+
   try {
     const result = await createThinkTankComment({
       postId,
-      memberId: currentMember.id,
       commentText
     });
 
@@ -1072,22 +1004,34 @@ async function addComment(postId, commentText) {
     const sensitive = result?.verdict?.is_sensitive === true;
 
     if (score >= 8 && !sensitive) {
-      alert(getText(
-        "thinktank.commentApproved",
-        "Το σχόλιο εγκρίθηκε από το AI και δημοσιεύτηκε."
-      ));
+      if (messageEl) {
+        messageEl.textContent = getText(
+          "thinktank.commentApproved",
+          "Το σχόλιο εγκρίθηκε από το σύστημα τεχνητής νοημοσύνης (AI) και δημοσιεύτηκε."
+        );
+      }
 
-      await resetAndLoadPosts();
+      // Unlike postMessage (which lives outside postsList), comment-message
+      // lives inside each post's rendered HTML — resetAndLoadPosts()
+      // replaces that entire subtree, which would erase this message
+      // before anyone could read it. A short delay lets it actually show.
+      setTimeout(() => {
+        resetAndLoadPosts();
+      }, 1800);
     } else if (score <= 3 || sensitive) {
-      alert(getText(
-        "thinktank.commentRejected",
-        "Το σχόλιο απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε."
-      ));
+      if (messageEl) {
+        messageEl.textContent = getText(
+          "thinktank.commentRejected",
+          "Το σχόλιο απορρίφθηκε από το σύστημα αξιολόγησης και δεν δημοσιεύτηκε."
+        );
+      }
     } else {
-      alert(getText(
-        "thinktank.commentPending",
-        "Το σχόλιο καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή."
-      ));
+      if (messageEl) {
+        messageEl.textContent = getText(
+          "thinktank.commentPending",
+          "Το σχόλιο καταχωρήθηκε και αναμένει έλεγχο από τον διαχειριστή."
+        );
+      }
     }
 
     return true;
@@ -1095,13 +1039,14 @@ async function addComment(postId, commentText) {
   } catch (err) {
     console.error("ThinkTank comment error:", err);
 
-    alert(
-      err?.message ||
-      getText(
-        "thinktank.commentSaveError",
-        "Αποτυχία αποθήκευσης σχολίου."
-      )
-    );
+    if (messageEl) {
+      messageEl.textContent =
+        err?.message ||
+        getText(
+          "thinktank.commentSaveError",
+          "Αποτυχία αποθήκευσης σχολίου."
+        );
+    }
 
     return false;
   }
